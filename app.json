@@ -1,6 +1,6 @@
 {
-  "name": "React Tutorial Server",
-  "description": "Code from the React tutorial",
+  "name": "Progress Tracking System Server",
+  "description": "Academic Progress recording and reporting",
   "keywords": [ "react", "reactjs", "tutorial" ],
   "repository": "https://github.com/reactjs/react-tutorial",
   "logo": "https://facebook.github.io/react/img/logo.svg",

@@ -3,6 +3,7 @@ const ReactDOM = require('react-dom');
 const toolbox = require('react-toolbox');
 const Tabs = toolbox.Tabs;
 const Tab = toolbox.Tab;
+const Dropdown = toolbox.Dropdown;
 
 class ProgressTrackingApp extends React.Component {
   constructor() {
@@ -50,7 +51,7 @@ class ProgressTrackingApp extends React.Component {
             <PeopleBox url="/api/people" pollInterval={2000} />
           </Tab>
           <Tab label="Progress">
-            Progress reports here ...
+            <ProgressBox url="/api/progress" pollInterval={2000} />
           </Tab>
           <Tab label="Comments">
             <CommentBox url="/api/comments" pollInterval={2000} />
@@ -82,7 +83,7 @@ var PeopleList = React.createClass({
     });
     return (
       <div className="peopleList">
-      <table border>
+      <table>
         <tbody>
         {peopleNodes}
         </tbody>
@@ -135,11 +136,6 @@ var PeopleBox = React.createClass({
     );
   }
 });
-ReactDOM.render(
-  <ProgressTrackingApp/>,
-  document.getElementById('content')
-);
-
 
 var Comment = React.createClass({
   rawMarkup: function() {
@@ -263,6 +259,184 @@ var CommentBox = React.createClass({
     );
   }
 });
+
+const ProgressValues = [
+  { value: '2', label: 'Super' },
+  { value: '1', label: 'Very Good'},
+  { value: '0', label: 'Good'},
+  { value: '-1', label: 'Needs Improvement' },
+  { value: '-2', label: 'Unsatisfactory'}
+];
+
+
+var Progress = React.createClass({
+  studentValues: [
+    {
+        "label": "Pita, Allyson",
+        "value": 1
+    },
+    {
+        "label": "Barnes, Yasmin",
+        "value": 2
+    }
+  ],
+  render: function() {
+    var md = new Remarkable();
+    var student = this.studentValues.find(function(row) { return row.value == this.props.idPerson; }.bind(this));
+    var effort = ProgressValues.find(function(row) { return row.value == this.props.effort; }.bind(this));
+    var achievement = ProgressValues.find(function(row) { return row.value == this.props.achievement; }.bind(this));
+    var cooperation = ProgressValues.find(function(row) { return row.value == this.props.cooperation; }.bind(this));
+    return (
+      <tr className="progress">
+        <td>{student.label}</td>
+        <td>{effort.label}</td>
+        <td>{achievement.label}</td>
+        <td>{cooperation.label}</td>
+      </tr>
+    );
+  }
+});
+var ProgressList = React.createClass({
+  render: function() {
+    var nodes = this.props.data.map(function(row) {
+      return (
+        <Progress idPerson={row.idPerson} effort={row.effort} achievement={row.achievement} cooperation={row.cooperation} key={row.id}/>
+      );
+    });
+    return (
+      <div className="progressList">
+      <table>
+        <tbody>
+        {nodes}
+        </tbody>
+      </table>
+      </div>
+    );
+  }
+});
+
+var ProgressForm = React.createClass({
+  studentValues: [
+    {
+        "label": "Pita, Allyson",
+        "value": 1
+    },
+    {
+        "label": "Barnes, Yasmin",
+        "value": 2
+    }
+  ],
+  getInitialState: function() {
+    return {author: '', text: ''};
+  },
+  handleStudentChange: function(value) {
+    this.setState({idPerson: value});
+  },
+  handleEffortChange: function(value) {
+    this.setState({effort: value});
+  },
+  handleAchievementChange: function(value) {
+    this.setState({achievement: value});
+  },
+  handleCooperationChange: function(value) {
+    this.setState({cooperation: value});
+  },
+  handleSubmit: function(e) {
+    e.preventDefault();
+    var idPerson = this.state.idPerson;
+    var effort = this.state.effort;
+    var achievement = this.state.achievement;
+    var cooperation = this.state.cooperation;    
+    if (!idPerson || !effort || !achievement || !cooperation) {
+      return;
+    }
+    // TODO: send request to the server
+    this.props.onSubmit({idPerson: idPerson, effort: effort, achievement: achievement, cooperation: cooperation});
+    this.setState({author: '', text: ''});
+  },
+  render: function() {
+    return (
+      <form className="progressForm" onSubmit={this.handleSubmit}>
+        <Dropdown
+          auto
+          onChange={this.handleStudentChange}
+          source={this.studentValues}
+          value={this.state.idPerson}
+          label="Weekly Report for Student:"
+        />
+        <Dropdown
+          auto
+          onChange={this.handleEffortChange}
+          source={ProgressValues}
+          value={this.state.effort}
+          label="Effort:"
+        />
+        <Dropdown
+          auto
+          onChange={this.handleAchievementChange}
+          source={ProgressValues}
+          value={this.state.achievement}
+          label="Achievement:"
+        />
+        <Dropdown
+          auto
+          onChange={this.handleCooperationChange}
+          source={ProgressValues}
+          value={this.state.cooperation}
+          label="Cooperation:"
+        />
+        <input type="submit" value="Post" />
+      </form>
+    );
+  }
+});
+var ProgressBox = React.createClass({
+  loadFromServer: function() {
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+  },
+  handleSubmit: function(row) {
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      type: 'POST',
+      data: row,
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+  },
+  getInitialState: function() {
+    return {data: []};
+  },
+  componentDidMount: function() {
+    this.loadFromServer();
+    setInterval(this.loadFromServer, this.props.pollInterval);
+  },
+  render: function() {
+    return (
+      <div className="progressBox">
+        <h1>Weekly Progress Reports</h1>
+        <ProgressList data={this.state.data} />
+        <h1>add Progress Report</h1>
+        <ProgressForm onSubmit={this.handleSubmit} />
+      </div>
+    );
+  }
+});
+
 ReactDOM.render(
   <ProgressTrackingApp/>,
   document.getElementById('content')

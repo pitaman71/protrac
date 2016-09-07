@@ -63,5 +63,28 @@ def people_handler():
     )
 
 
+@app.route('/api/progress', methods=['GET', 'POST'])
+def progress_handler():
+    with open('progress.json', 'r') as f:
+        progress = json.loads(f.read())
+
+    if request.method == 'POST':
+        new_comment = request.form.to_dict()
+        new_comment['id'] = int(time.time() * 1000)
+        progress.append(new_comment)
+
+        with open('progress.json', 'w') as f:
+            f.write(json.dumps(progress, indent=4, separators=(',', ': ')))
+
+    return Response(
+        json.dumps(progress),
+        mimetype='application/json',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Access-Control-Allow-Origin': '*'
+        }
+    )
+
+
 if __name__ == '__main__':
     app.run(port=int(os.environ.get("PORT", 3000)), debug=True)

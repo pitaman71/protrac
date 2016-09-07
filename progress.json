@@ -1,0 +1,16 @@
+[
+    {
+        "idPerson": "1",
+        "effort": "1",
+        "achievement": "-1",
+        "cooperation": "1",
+        "id": 1473180168034
+    },
+    {
+        "idPerson": "2",
+        "effort": "1",
+        "cooperation": "0",
+        "achievement": "0",
+        "id": 1473196887069
+    }
+]
