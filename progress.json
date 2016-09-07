@@ -1,16 +1,18 @@
 [
     {
-        "idPerson": "1",
-        "effort": "1",
-        "achievement": "-1",
+        "idPerson": "3",
+        "week": "Mon Aug 22 2016",
         "cooperation": "1",
-        "id": 1473180168034
+        "effort": "-1",
+        "id": 1473220143877,
+        "achievement": "0"
     },
     {
         "idPerson": "2",
-        "effort": "1",
-        "cooperation": "0",
-        "achievement": "0",
-        "id": 1473196887069
+        "week": "Mon Aug 15 2016",
+        "cooperation": "3",
+        "effort": "2",
+        "id": 1473220923313,
+        "achievement": "-1"
     }
 ]

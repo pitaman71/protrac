@@ -62,6 +62,16 @@ class ProgressTrackingApp extends React.Component {
   }
 }
 
+const ProgressValues = [
+  { value: '3', label: 'GASP!' },
+  { value: '2', label: 'Smiley'},
+  { value: '1', label: 'Thumbs Up'},
+  { value: '0', label: 'OK'},
+  { value: '-1', label: 'Thumbs Down' },
+  { value: '-2', label: 'Frowny'},
+  { value: '-2', label: 'GROAN!'},
+];
+
 var Person = React.createClass({
   render: function() {
     var md = new Remarkable();
@@ -260,35 +270,18 @@ var CommentBox = React.createClass({
   }
 });
 
-const ProgressValues = [
-  { value: '2', label: 'Super' },
-  { value: '1', label: 'Very Good'},
-  { value: '0', label: 'Good'},
-  { value: '-1', label: 'Needs Improvement' },
-  { value: '-2', label: 'Unsatisfactory'}
-];
-
-
 var Progress = React.createClass({
-  studentValues: [
-    {
-        "label": "Pita, Allyson",
-        "value": 1
-    },
-    {
-        "label": "Barnes, Yasmin",
-        "value": 2
-    }
-  ],
   render: function() {
     var md = new Remarkable();
-    var student = this.studentValues.find(function(row) { return row.value == this.props.idPerson; }.bind(this));
+    var student = this.props.studentValues.find(function(row) { return row.value == this.props.idPerson; }.bind(this));
+    var week = this.props.week;
     var effort = ProgressValues.find(function(row) { return row.value == this.props.effort; }.bind(this));
     var achievement = ProgressValues.find(function(row) { return row.value == this.props.achievement; }.bind(this));
     var cooperation = ProgressValues.find(function(row) { return row.value == this.props.cooperation; }.bind(this));
     return (
       <tr className="progress">
         <td>{student.label}</td>
+        <td>{week}</td>
         <td>{effort.label}</td>
         <td>{achievement.label}</td>
         <td>{cooperation.label}</td>
@@ -300,9 +293,9 @@ var ProgressList = React.createClass({
   render: function() {
     var nodes = this.props.data.map(function(row) {
       return (
-        <Progress idPerson={row.idPerson} effort={row.effort} achievement={row.achievement} cooperation={row.cooperation} key={row.id}/>
+        <Progress idPerson={row.idPerson} week={row.week} effort={row.effort} achievement={row.achievement} cooperation={row.cooperation} key={row.id} studentValues={this.props.studentValues}/>
       );
-    });
+    }.bind(this));
     return (
       <div className="progressList">
       <table>
@@ -316,21 +309,47 @@ var ProgressList = React.createClass({
 });
 
 var ProgressForm = React.createClass({
-  studentValues: [
-    {
-        "label": "Pita, Allyson",
-        "value": 1
-    },
-    {
-        "label": "Barnes, Yasmin",
-        "value": 2
+  weekValues: [],
+  componentDidMount: function() {
+    var today = this.getWeekBegin(new Date());
+    var result = [];
+    for(var i = 0; i < 4; i=i+1) {
+      today.setDate(today.getDate() - 7);
     }
-  ],
+    for(var i = 0; i < 9; i=i+1) {
+      this.weekValues.push({ value: today.toDateString(), label: this.getWeekLabel(today)});
+      today.setDate(today.getDate() + 7);
+    }
+  },
   getInitialState: function() {
     return {author: '', text: ''};
   },
+  getWeekBegin: function(date) {
+    var day = date.getDay();
+    var diff = date.getDate() - day + (day == 0 ? -6:1);
+    date.setDate(diff);
+    return date;
+  },
+  getWeekEnd: function(date) {
+    day = date.getDay();
+    diff = date.getDate() + (6 - day);
+    date.setDate(diff);
+    return date;
+  },
+  getWeekLabel: function(code) {
+    var date = new Date(code);
+
+    var wbegin = this.getWeekBegin(date);
+
+    date = new Date(code);
+    var wend = this.getWeekEnd(date);
+    return wbegin.toDateString()+"-"+wend.toDateString();
+  },
   handleStudentChange: function(value) {
     this.setState({idPerson: value});
+  },
+  handleWeekChange: function(value) {
+    this.setState({week: value});
   },
   handleEffortChange: function(value) {
     this.setState({effort: value});
@@ -344,14 +363,15 @@ var ProgressForm = React.createClass({
   handleSubmit: function(e) {
     e.preventDefault();
     var idPerson = this.state.idPerson;
+    var week = this.state.week;
     var effort = this.state.effort;
     var achievement = this.state.achievement;
     var cooperation = this.state.cooperation;    
-    if (!idPerson || !effort || !achievement || !cooperation) {
+    if (!idPerson || !week || !effort || !achievement || !cooperation) {
       return;
     }
     // TODO: send request to the server
-    this.props.onSubmit({idPerson: idPerson, effort: effort, achievement: achievement, cooperation: cooperation});
+    this.props.onSubmit({idPerson: idPerson, week: week, effort: effort, achievement: achievement, cooperation: cooperation});
     this.setState({author: '', text: ''});
   },
   render: function() {
@@ -360,9 +380,16 @@ var ProgressForm = React.createClass({
         <Dropdown
           auto
           onChange={this.handleStudentChange}
-          source={this.studentValues}
+          source={this.props.studentValues}
           value={this.state.idPerson}
           label="Weekly Report for Student:"
+        />
+        <Dropdown
+          auto
+          onChange={this.handleWeekChange}
+          source={this.weekValues}
+          value={this.state.week}
+          label="Week:"
         />
         <Dropdown
           auto
@@ -391,6 +418,13 @@ var ProgressForm = React.createClass({
   }
 });
 var ProgressBox = React.createClass({
+  setStudentValues: function(people) {
+    var studentValues = [];
+    for(index=0;index<people.length;index++) {
+      studentValues.push({value: people[index].id, label: people[index].surname+", "+people[index].given});
+    }
+    this.setState({studentValues: studentValues});
+  },
   loadFromServer: function() {
     $.ajax({
       url: this.props.url,
@@ -401,6 +435,17 @@ var ProgressBox = React.createClass({
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+    $.ajax({
+      url: 'api/people',
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        this.setStudentValues(data);
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error('api/people', status, err.toString());
       }.bind(this)
     });
   },
@@ -419,7 +464,7 @@ var ProgressBox = React.createClass({
     });
   },
   getInitialState: function() {
-    return {data: []};
+    return {data: [], studentValues: []};
   },
   componentDidMount: function() {
     this.loadFromServer();
@@ -429,9 +474,9 @@ var ProgressBox = React.createClass({
     return (
       <div className="progressBox">
         <h1>Weekly Progress Reports</h1>
-        <ProgressList data={this.state.data} />
+        <ProgressList data={this.state.data} studentValues={this.state.studentValues}/>
         <h1>add Progress Report</h1>
-        <ProgressForm onSubmit={this.handleSubmit} />
+        <ProgressForm onSubmit={this.handleSubmit} studentValues={this.state.studentValues}/>
       </div>
     );
   }
