@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Weekly Report = Teacher * Student * Learning Objective => Effort * Cooperation * Progress -->
+<!-- Clueless vs. Working vs. Mastery -->
+
+<application name="protrac">
+    <objType name="Organization">
+        <propertyType name="name" type="StringLabel"/>
+        <propertyType name="description" type="StringComments"/>
+    </objType>
+    <objType name="TeacherOf">
+        <propertyType name="teacher" type="Person"/>
+        <propertyType name="student" type="Person"/>
+    </objType>
+    <objType name="ParentOf">
+        <propertyType name="parent" type="Person"/>
+        <propertyType name="student" type="Person"/>
+    </objType>
+    <objType name="EffortCredit">
+        <propertyType name="name" type="StringLabel"/>
+        <propertyType name="description" type="StringComments"/>
+    </objType>
+    <objType name="MasteryCredit">
+        <propertyType name="name" type="StringLabel"/>
+        <propertyType name="description" type="StringComments"/>
+    </objType>
+    <objType name="CooperationCredit">
+        <propertyType name="name" type="StringLabel"/>
+        <propertyType name="description" type="StringComments"/>
+    </objType>
+    <objType name="AccelerationValue">
+        <propertyType name="name" type="StringLabel"/>
+        <propertyType name="description" type="StringComments"/>
+    </objType>
+    <object type="EffortCredit"><name name="wow!"/></object>
+    <object type="EffortCredit"><name name="smiley"/></object>
+    <object type="EffortCredit"><name name="okay"/></object>
+    <object type="EffortCredit"><name name="frowny"/></object>
+    <object type="EffortCredit"><name name="uhoh"/></object>
+    <object type="CooperationCredit"><name name="wow!"/></object>
+    <object type="CooperationCredit"><name name="smiley"/></object>
+    <object type="CooperationCredit"><name name="okay"/></object>
+    <object type="CooperationCredit"><name name="frowny"/></object>
+    <object type="CooperationCredit"><name name="uhoh"/></object>
+    <object type="MasteryCredit"><name name="mastery"/></object>
+    <object type="MasteryCredit"><name name="almost"/></object>
+    <object type="MasteryCredit"><name name="partial"/></object>
+    <object type="MasteryCredit"><name name="trying"/></object>
+    <object type="MasteryCredit"><name name="discovering"/></object>
+    <object type="AccelerationValue"><name name="longTermReview"/></object>
+    <object type="AccelerationValue"><name name="selfDirected"/></object>
+    <object type="AccelerationValue"><name name="aboveGradeLevel"/></object>
+    <object type="AccelerationValue"><name name="atGradeLevel"/></object>
+    <object type="AccelerationValue"><name name="belowGradeLevel"/></object>
+    <objType name="Person">
+        <propertyType name="surName" type="StringLabel"/>
+        <propertyType name="givenName" type="StringLabel"/>
+    </objType>
+    <objType name="Standard">
+        <propertyType name="name" type="StringLabel"/>
+        <propertyType name="description" type="StringComments"/>
+    </objType>
+    <objType name="Subject">
+        <propertyType name="name" type="StringLabel"/>
+        <propertyType name="description" type="StringComments"/>
+    </objType>
+    <objType name="LearningObjective">
+        <propertyType name="name" type="StringLabel"/>
+        <propertyType name="subject" type="Subject"/>
+        <propertyType name="standard" type="Standard"/>
+        <propertyType name="section" type="StringLabel"/>
+        <propertyType name="description" type="StringComments"/>
+    </objType>
+    <objType name="WeeklyReport">
+        <propertyType name="teacher" type="Person"/>
+        <propertyType name="student" type="Person"/>
+        <propertyType name="week" type="Date"/>
+        <propertyType name="objective" type="LearningObjective"/>
+        <propertyType name="acceleration" type="AccelerationValue"/>
+        <propertyType name="effort" type="EffortCredit"/>
+        <propertyType name="progress" type="MasteryCredit"/>
+        <propertyType name="cooperation" type="CooperationCredit"/>
+    </objType>
+</application>

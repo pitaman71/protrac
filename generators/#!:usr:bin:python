@@ -1,0 +1,10 @@
+#!/usr/bin/python
+
+import sys;
+
+argi = 0
+for arg in sys.argv:
+    if(argi != 0):
+        tree = ElementTree.parse(arg)
+        root = tree.getroot()
+    argi = argi + 1
