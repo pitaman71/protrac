@@ -100,34 +100,34 @@
 	      React.createElement(
 	        'h1',
 	        null,
-	        'ProgressTrackingApp'
+	        'Beta School : Academic Progress Tracking'
 	      ),
 	      React.createElement(
 	        Tabs,
 	        { index: this.state.index, onChange: this.handleTabChange },
 	        React.createElement(
 	          Tab,
-	          { label: 'Person' },
+	          { label: 'People' },
 	          React.createElement(PersonBrowser, { url: '/api/Person', pollInterval: 2000 })
 	        ),
 	        React.createElement(
 	          Tab,
-	          { label: 'Standard' },
+	          { label: 'Standards' },
 	          React.createElement(StandardBrowser, { url: '/api/Standard', pollInterval: 2000 })
 	        ),
 	        React.createElement(
 	          Tab,
-	          { label: 'Subject' },
+	          { label: 'Subjects' },
 	          React.createElement(SubjectBrowser, { url: '/api/Subject', pollInterval: 2000 })
 	        ),
 	        React.createElement(
 	          Tab,
-	          { label: 'LearningObjective' },
+	          { label: 'Objectives' },
 	          React.createElement(LearningObjectiveBrowser, { url: '/api/LearningObjective', pollInterval: 2000 })
 	        ),
 	        React.createElement(
 	          Tab,
-	          { label: 'WeeklyReport' },
+	          { label: 'Reports' },
 	          React.createElement(WeeklyReportBrowser, { url: '/api/WeeklyReport', pollInterval: 2000 })
 	        )
 	      )
@@ -479,6 +479,12 @@
 	          null,
 	          nodes
 	        )
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'OrganizationListSummary' },
+	        'Organization : ',
+	        this.props.data.length
 	      )
 	    );
 	  }
@@ -505,6 +511,12 @@
 	          null,
 	          nodes
 	        )
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'EffortCreditListSummary' },
+	        'EffortCredit : ',
+	        this.props.data.length
 	      )
 	    );
 	  }
@@ -531,6 +543,12 @@
 	          null,
 	          nodes
 	        )
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'MasteryCreditListSummary' },
+	        'MasteryCredit : ',
+	        this.props.data.length
 	      )
 	    );
 	  }
@@ -557,6 +575,12 @@
 	          null,
 	          nodes
 	        )
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'CooperationCreditListSummary' },
+	        'CooperationCredit : ',
+	        this.props.data.length
 	      )
 	    );
 	  }
@@ -583,6 +607,12 @@
 	          null,
 	          nodes
 	        )
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'AccelerationValueListSummary' },
+	        'AccelerationValue : ',
+	        this.props.data.length
 	      )
 	    );
 	  }
@@ -609,6 +639,12 @@
 	          null,
 	          nodes
 	        )
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'PersonListSummary' },
+	        'Person : ',
+	        this.props.data.length
 	      )
 	    );
 	  }
@@ -635,6 +671,12 @@
 	          null,
 	          nodes
 	        )
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'StandardListSummary' },
+	        'Standard : ',
+	        this.props.data.length
 	      )
 	    );
 	  }
@@ -661,6 +703,12 @@
 	          null,
 	          nodes
 	        )
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'SubjectListSummary' },
+	        'Subject : ',
+	        this.props.data.length
 	      )
 	    );
 	  }
@@ -690,6 +738,12 @@
 	          null,
 	          nodes
 	        )
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'LearningObjectiveListSummary' },
+	        'LearningObjective : ',
+	        this.props.data.length
 	      )
 	    );
 	  }
@@ -722,6 +776,12 @@
 	          null,
 	          nodes
 	        )
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'WeeklyReportListSummary' },
+	        'WeeklyReport : ',
+	        this.props.data.length
 	      )
 	    );
 	  }
@@ -770,12 +830,7 @@
 	    return React.createElement(
 	      'div',
 	      { className: 'OrganizationBrowser' },
-	      React.createElement(
-	        'h1',
-	        null,
-	        'List of Organization'
-	      ),
-	      React.createElement(OrganizationList, { data: this.state.data
+	      React.createElement(OrganizationList, { type: 'Organization', data: this.state.data
 	      })
 	    );
 	  }
@@ -824,12 +879,7 @@
 	    return React.createElement(
 	      'div',
 	      { className: 'EffortCreditBrowser' },
-	      React.createElement(
-	        'h1',
-	        null,
-	        'List of EffortCredit'
-	      ),
-	      React.createElement(EffortCreditList, { data: this.state.data
+	      React.createElement(EffortCreditList, { type: 'EffortCredit', data: this.state.data
 	      })
 	    );
 	  }
@@ -878,12 +928,7 @@
 	    return React.createElement(
 	      'div',
 	      { className: 'MasteryCreditBrowser' },
-	      React.createElement(
-	        'h1',
-	        null,
-	        'List of MasteryCredit'
-	      ),
-	      React.createElement(MasteryCreditList, { data: this.state.data
+	      React.createElement(MasteryCreditList, { type: 'MasteryCredit', data: this.state.data
 	      })
 	    );
 	  }
@@ -932,12 +977,7 @@
 	    return React.createElement(
 	      'div',
 	      { className: 'CooperationCreditBrowser' },
-	      React.createElement(
-	        'h1',
-	        null,
-	        'List of CooperationCredit'
-	      ),
-	      React.createElement(CooperationCreditList, { data: this.state.data
+	      React.createElement(CooperationCreditList, { type: 'CooperationCredit', data: this.state.data
 	      })
 	    );
 	  }
@@ -986,12 +1026,7 @@
 	    return React.createElement(
 	      'div',
 	      { className: 'AccelerationValueBrowser' },
-	      React.createElement(
-	        'h1',
-	        null,
-	        'List of AccelerationValue'
-	      ),
-	      React.createElement(AccelerationValueList, { data: this.state.data
+	      React.createElement(AccelerationValueList, { type: 'AccelerationValue', data: this.state.data
 	      })
 	    );
 	  }
@@ -1040,12 +1075,7 @@
 	    return React.createElement(
 	      'div',
 	      { className: 'PersonBrowser' },
-	      React.createElement(
-	        'h1',
-	        null,
-	        'List of Person'
-	      ),
-	      React.createElement(PersonList, { data: this.state.data
+	      React.createElement(PersonList, { type: 'Person', data: this.state.data
 	      })
 	    );
 	  }
@@ -1094,12 +1124,7 @@
 	    return React.createElement(
 	      'div',
 	      { className: 'StandardBrowser' },
-	      React.createElement(
-	        'h1',
-	        null,
-	        'List of Standard'
-	      ),
-	      React.createElement(StandardList, { data: this.state.data
+	      React.createElement(StandardList, { type: 'Standard', data: this.state.data
 	      })
 	    );
 	  }
@@ -1148,12 +1173,7 @@
 	    return React.createElement(
 	      'div',
 	      { className: 'SubjectBrowser' },
-	      React.createElement(
-	        'h1',
-	        null,
-	        'List of Subject'
-	      ),
-	      React.createElement(SubjectList, { data: this.state.data
+	      React.createElement(SubjectList, { type: 'Subject', data: this.state.data
 	      })
 	    );
 	  }
@@ -1260,12 +1280,7 @@
 	    return React.createElement(
 	      'div',
 	      { className: 'LearningObjectiveBrowser' },
-	      React.createElement(
-	        'h1',
-	        null,
-	        'List of LearningObjective'
-	      ),
-	      React.createElement(LearningObjectiveList, { data: this.state.data,
+	      React.createElement(LearningObjectiveList, { type: 'LearningObjective', data: this.state.data,
 	        subjectValues: this.state.studentValues,
 	        standardValues: this.state.studentValues
 	      })
@@ -1525,12 +1540,7 @@
 	    return React.createElement(
 	      'div',
 	      { className: 'WeeklyReportBrowser' },
-	      React.createElement(
-	        'h1',
-	        null,
-	        'List of WeeklyReport'
-	      ),
-	      React.createElement(WeeklyReportList, { data: this.state.data,
+	      React.createElement(WeeklyReportList, { type: 'WeeklyReport', data: this.state.data,
 	        teacherValues: this.state.studentValues,
 	        studentValues: this.state.studentValues,
 	        objectiveValues: this.state.studentValues,

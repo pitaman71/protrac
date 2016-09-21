@@ -4,6 +4,80 @@ import copy
 import xml.etree.ElementTree as ElementTree
 import sys
 
+class NodeWrapper:
+  def __init__(self,rootNode,defNode):
+    self.rootNode = rootNode
+    self.defNode = defNode
+
+  # returns a 1-2 word description of this item
+  # used for tab labels, button labels, etc.
+  def getLabel(self):
+    nodes = self.defNode.findall('label')
+    if(len(nodes) == 0):
+      return self.defNode.get('name')
+    else:
+      node = nodes[len(nodes)-1]
+      return node.text % node.attrib
+
+  # returns a phrase description of this item
+  # used for page title or section header
+  def getTitle(self):
+    nodes = self.defNode.findall('title')
+    if(len(nodes) == 0):
+      return self.defNode.get('name')
+    else:
+      node = nodes[len(nodes)-1]
+      return node.text % node.attrib
+
+  def getListSummary(self):
+    nodes = self.defNode.findall('listSummary')
+    if(len(nodes) == 0):
+      return self.getTitle()
+    else:
+      node = nodes[len(nodes)-1]
+      return node.text % node.attrib
+
+class BrowseWrapper(NodeWrapper):
+  def __init__(self,rootNode,defNode):
+    NodeWrapper.__init__(self,rootNode,defNode)
+    self.typeNode = xref(rootNode,defNode.get('type'))
+
+  def getLabel(self):
+    labelNodes = self.typeNode.findall('label')
+    if(len(labelNodes) == 0):
+      return self.defNode.get('type')
+    else:
+      labelNode = labelNodes[len(labelNodes)-1]
+      return labelNode.text % labelNode.attrib
+
+  def getListSummary(self):
+    nodes = self.typeNode.findall('listSummary')
+    if(len(nodes) == 0):
+      return self.getLabel()
+    else:
+      node = nodes[len(nodes)-1]
+      return node.text % node.attrib
+
+  def emitTab(self):
+    print """
+          <Tab label="%(label)s">
+            <%(type)sBrowser url="/api/%(type)s" pollInterval={2000} />
+          </Tab>
+          """ % dict(label=self.getLabel(),type=self.defNode.get('type'))
+
+def xref(rootNode,name):
+  predicate = 'objType[@name=%s]' % (name)
+  sys.stderr.write("predicate is %s\n" % predicate)
+  defs1 = rootNode.findall("objType[@name='%s']" % (name))
+  defs2 = rootNode.findall("relType[@name='%s']" % (name))
+  if(len(defs1) > 0):
+    return defs1[len(defs1)-1]
+  elif(len(defs2) > 0):
+    return defs2[len(defs2)-1]
+  else:
+    sys.stderr.write("Cannot locate definition of %s\n" % name)
+    exit(1)
+
 print """
 const React = require('react');
 const ReactDOM = require('react-dom');
@@ -69,17 +143,14 @@ class %(name)s extends React.Component {
   render() {
     return (
       <div>
-        <h1>%(name)s</h1>
+        <h1>%(title)s</h1>
         <Tabs index={this.state.index} onChange={this.handleTabChange}>
-    """ % root.attrib
+    """ % dict(name=root.get('name'),title=NodeWrapper(root,root).getTitle())
 
-    for view in root.findall('view'):        
-        for browse in view.findall('browse'):
-            print """
-          <Tab label="%(type)s">
-            <%(type)sBrowser url="/api/%(type)s" pollInterval={2000} />
-          </Tab>
-            """ % browse.attrib
+    for viewNode in root.findall('view'):        
+        for browseNode in viewNode.findall('browse'):
+            browse = BrowseWrapper(root,browseNode)
+            browse.emitTab()
 
     print """
         </Tabs>
@@ -163,11 +234,14 @@ var %(name)sList = React.createClass({
         {nodes}
         </tbody>
       </table>
+      <div className="%(name)sListSummary">
+      %(listSummary)s : {this.props.data.length}
+      </div>
       </div>
     );
   }
 });
-        """ % objType.attrib
+        """ % dict(name=objType.get('name'),listSummary=NodeWrapper(root,objType).getListSummary())
 
     for objType in root.findall('objType'):
         print """
@@ -274,8 +348,7 @@ var %(name)sBrowser = React.createClass({
   render: function() {
     return (
       <div className="%(name)sBrowser">
-        <h1>List of %(name)s</h1>
-        <%(name)sList data={this.state.data}""" % objType.attrib
+        <%(name)sList type="%(name)s" data={this.state.data}""" % dict(name=objType.get('name'))
         for propertyType in objType.findall('propertyType'):
             propTypeName = ""
             if 'type' in propertyType.attrib:

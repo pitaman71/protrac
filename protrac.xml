@@ -3,6 +3,7 @@
 <!-- Clueless vs. Working vs. Mastery -->
 
 <application name="ProgressTrackingApp">
+    <title>Beta School : Academic Progress Tracking</title>
     <view name="Application">
         <browse type="Person"/>
         <browse type="Standard"/>
@@ -11,6 +12,7 @@
         <browse type="WeeklyReport"/>
     </view>
     <objType name="Organization">
+        <label>Organizations</label>
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="description" type="StringComments"/>
     </objType>
@@ -59,18 +61,22 @@
     <object type="AccelerationValue"><name name="atGradeLevel"/></object>
     <object type="AccelerationValue"><name name="belowGradeLevel"/></object>
     <objType name="Person">
+        <label>People</label>
         <propertyType name="surName" type="StringLabel"/>
         <propertyType name="givenName" type="StringLabel"/>
     </objType>
     <objType name="Standard">
+        <label>Standards</label>
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="description" type="StringComments"/>
     </objType>
     <objType name="Subject">
+        <label>Subjects</label>
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="description" type="StringComments"/>
     </objType>
     <objType name="LearningObjective">
+        <label>Objectives</label>
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="subject" type="Subject"/>
         <propertyType name="standard" type="Standard"/>
@@ -78,6 +84,7 @@
         <propertyType name="description" type="StringComments"/>
     </objType>
     <objType name="WeeklyReport">
+        <label>Reports</label>
         <propertyType name="teacher" type="Person"/>
         <propertyType name="student" type="Person"/>
         <propertyType name="week" type="Date"/>
