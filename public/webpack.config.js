@@ -2,7 +2,7 @@ var path = require('path');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 var config = {
-    entry: path.join(__dirname,'scripts/client.js'),               // entry point
+    entry: path.join(__dirname,'../autosrc/client.js'),               // entry point
     output: {                     // output folder
         path: path.join(__dirname,'dist'),           // folder path
         filename: 'bundle.js'     // file name

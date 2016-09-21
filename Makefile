@@ -1,11 +1,18 @@
-default : autosrc autosrc/server.py
+default : autosrc server.py dist/bundle.js
 
 autosrc :
 	mkdir -p $@
 
-autosrc/server.py : generators/generate_python_server.py protrac.xml 
+server.py : generators/generate_python_server.py protrac.xml 
 	$^ > $@.in-progress
 	mv $@.in-progress $@
 
-start_server : autosrc/server.py
+autosrc/client.js : generators/generate_jdx_client.py protrac.xml 
+	$^ > $@.in-progress
+	mv $@.in-progress $@
+
+start_server : server.py
 	/usr/local/bin/python $<
+
+dist/bundle.js : autosrc/client.js
+	cd public ; node_modules/webpack/bin/webpack.js

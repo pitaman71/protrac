@@ -44,6 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
+	
 	const React = __webpack_require__(1);
 	const ReactDOM = __webpack_require__(34);
 	const toolbox = __webpack_require__(172);
@@ -51,7 +52,11 @@
 	const Tab = toolbox.Tab;
 	const Dropdown = toolbox.Dropdown;
 
+	// Debug: parsing protrac.xml
+
+
 	class ProgressTrackingApp extends React.Component {
+
 	  constructor() {
 	    super();
 	    this.state = {
@@ -95,290 +100,329 @@
 	      React.createElement(
 	        'h1',
 	        null,
-	        'Beta School Progress Tracking'
+	        'ProgressTrackingApp'
 	      ),
 	      React.createElement(
 	        Tabs,
 	        { index: this.state.index, onChange: this.handleTabChange },
 	        React.createElement(
 	          Tab,
-	          { label: 'People' },
-	          React.createElement(PeopleBox, { url: '/api/people', pollInterval: 2000 })
+	          { label: 'Person' },
+	          React.createElement(PersonBrowser, { url: '/api/Person', pollInterval: 2000 })
 	        ),
 	        React.createElement(
 	          Tab,
-	          { label: 'Progress' },
-	          React.createElement(ProgressBox, { url: '/api/progress', pollInterval: 2000 })
+	          { label: 'Standard' },
+	          React.createElement(StandardBrowser, { url: '/api/Standard', pollInterval: 2000 })
 	        ),
 	        React.createElement(
 	          Tab,
-	          { label: 'Comments' },
-	          React.createElement(CommentBox, { url: '/api/comments', pollInterval: 2000 })
+	          { label: 'Subject' },
+	          React.createElement(SubjectBrowser, { url: '/api/Subject', pollInterval: 2000 })
+	        ),
+	        React.createElement(
+	          Tab,
+	          { label: 'LearningObjective' },
+	          React.createElement(LearningObjectiveBrowser, { url: '/api/LearningObjective', pollInterval: 2000 })
+	        ),
+	        React.createElement(
+	          Tab,
+	          { label: 'WeeklyReport' },
+	          React.createElement(WeeklyReportBrowser, { url: '/api/WeeklyReport', pollInterval: 2000 })
 	        )
 	      )
 	    );
 	  }
 	}
 
+	var Organization = React.createClass({
+	  displayName: 'Organization',
+
+	  render: function () {
+
+	    var name = this.props.name;
+
+	    var description = this.props.description;
+
+	    return React.createElement(
+	      'tr',
+	      { className: 'Organization' },
+	      React.createElement(
+	        'td',
+	        null,
+	        name
+	      ),
+	      React.createElement(
+	        'td',
+	        null,
+	        description
+	      )
+	    );
+	  }
+	});
+
+	var EffortCredit = React.createClass({
+	  displayName: 'EffortCredit',
+
+	  render: function () {
+
+	    var name = this.props.name;
+
+	    var description = this.props.description;
+
+	    return React.createElement(
+	      'tr',
+	      { className: 'EffortCredit' },
+	      React.createElement(
+	        'td',
+	        null,
+	        name
+	      ),
+	      React.createElement(
+	        'td',
+	        null,
+	        description
+	      )
+	    );
+	  }
+	});
+
+	var MasteryCredit = React.createClass({
+	  displayName: 'MasteryCredit',
+
+	  render: function () {
+
+	    var name = this.props.name;
+
+	    var description = this.props.description;
+
+	    return React.createElement(
+	      'tr',
+	      { className: 'MasteryCredit' },
+	      React.createElement(
+	        'td',
+	        null,
+	        name
+	      ),
+	      React.createElement(
+	        'td',
+	        null,
+	        description
+	      )
+	    );
+	  }
+	});
+
+	var CooperationCredit = React.createClass({
+	  displayName: 'CooperationCredit',
+
+	  render: function () {
+
+	    var name = this.props.name;
+
+	    var description = this.props.description;
+
+	    return React.createElement(
+	      'tr',
+	      { className: 'CooperationCredit' },
+	      React.createElement(
+	        'td',
+	        null,
+	        name
+	      ),
+	      React.createElement(
+	        'td',
+	        null,
+	        description
+	      )
+	    );
+	  }
+	});
+
+	var AccelerationValue = React.createClass({
+	  displayName: 'AccelerationValue',
+
+	  render: function () {
+
+	    var name = this.props.name;
+
+	    var description = this.props.description;
+
+	    return React.createElement(
+	      'tr',
+	      { className: 'AccelerationValue' },
+	      React.createElement(
+	        'td',
+	        null,
+	        name
+	      ),
+	      React.createElement(
+	        'td',
+	        null,
+	        description
+	      )
+	    );
+	  }
+	});
+
 	var Person = React.createClass({
 	  displayName: 'Person',
 
 	  render: function () {
-	    var md = new Remarkable();
+
+	    var surName = this.props.surName;
+
+	    var givenName = this.props.givenName;
+
 	    return React.createElement(
 	      'tr',
-	      { className: 'person' },
+	      { className: 'Person' },
 	      React.createElement(
 	        'td',
 	        null,
-	        this.props.given
+	        surName
 	      ),
 	      React.createElement(
 	        'td',
 	        null,
-	        this.props.surname
+	        givenName
 	      )
 	    );
 	  }
 	});
 
-	var PeopleList = React.createClass({
-	  displayName: 'PeopleList',
+	var Standard = React.createClass({
+	  displayName: 'Standard',
 
 	  render: function () {
-	    var peopleNodes = this.props.data.map(function (person) {
-	      return React.createElement(Person, { surname: person.surname, given: person.given, key: person.id });
-	    });
+
+	    var name = this.props.name;
+
+	    var description = this.props.description;
+
 	    return React.createElement(
-	      'div',
-	      { className: 'peopleList' },
+	      'tr',
+	      { className: 'Standard' },
 	      React.createElement(
-	        'table',
+	        'td',
 	        null,
-	        React.createElement(
-	          'tbody',
-	          null,
-	          peopleNodes
-	        )
+	        name
+	      ),
+	      React.createElement(
+	        'td',
+	        null,
+	        description
 	      )
 	    );
 	  }
 	});
-	var PeopleBox = React.createClass({
-	  displayName: 'PeopleBox',
 
-	  loadFromServer: function () {
-	    $.ajax({
-	      url: this.props.url,
-	      dataType: 'json',
-	      cache: false,
-	      success: function (data) {
-	        this.setState({ data: data });
-	      }.bind(this),
-	      error: function (xhr, status, err) {
-	        console.error(this.props.url, status, err.toString());
-	      }.bind(this)
-	    });
-	  },
-	  handleCommentSubmit: function (comment) {
-	    $.ajax({
-	      url: this.props.url,
-	      dataType: 'json',
-	      type: 'POST',
-	      data: comment,
-	      success: function (data) {
-	        this.setState({ data: data });
-	      }.bind(this),
-	      error: function (xhr, status, err) {
-	        console.error(this.props.url, status, err.toString());
-	      }.bind(this)
-	    });
-	  },
-	  getInitialState: function () {
-	    return { data: [] };
-	  },
-	  componentDidMount: function () {
-	    this.loadFromServer();
-	    setInterval(this.loadFromServer, this.props.pollInterval);
-	  },
+	var Subject = React.createClass({
+	  displayName: 'Subject',
+
 	  render: function () {
+
+	    var name = this.props.name;
+
+	    var description = this.props.description;
+
 	    return React.createElement(
-	      'div',
-	      { className: 'peopleBox' },
+	      'tr',
+	      { className: 'Subject' },
 	      React.createElement(
-	        'h1',
+	        'td',
 	        null,
-	        'People'
+	        name
 	      ),
-	      React.createElement(PeopleList, { data: this.state.data })
-	    );
-	  }
-	});
-
-	var Comment = React.createClass({
-	  displayName: 'Comment',
-
-	  rawMarkup: function () {
-	    var md = new Remarkable();
-	    var rawMarkup = md.render(this.props.children.toString());
-	    return { __html: rawMarkup };
-	  },
-
-	  render: function () {
-	    var md = new Remarkable();
-	    return React.createElement(
-	      'div',
-	      { className: 'comment' },
 	      React.createElement(
-	        'h2',
-	        { className: 'commentAuthor' },
-	        this.props.author
-	      ),
-	      React.createElement('span', { dangerouslySetInnerHTML: this.rawMarkup() })
-	    );
-	  }
-	});
-	var CommentList = React.createClass({
-	  displayName: 'CommentList',
-
-	  render: function () {
-	    var commentNodes = this.props.data.map(function (comment) {
-	      return React.createElement(
-	        Comment,
-	        { author: comment.author, key: comment.id },
-	        comment.text
-	      );
-	    });
-	    return React.createElement(
-	      'div',
-	      { className: 'commentList' },
-	      commentNodes
-	    );
-	  }
-	});
-
-	var CommentForm = React.createClass({
-	  displayName: 'CommentForm',
-
-	  getInitialState: function () {
-	    return { author: '', text: '' };
-	  },
-	  handleAuthorChange: function (e) {
-	    this.setState({ author: e.target.value });
-	  },
-	  handleTextChange: function (e) {
-	    this.setState({ text: e.target.value });
-	  },
-	  handleSubmit: function (e) {
-	    e.preventDefault();
-	    var author = this.state.author.trim();
-	    var text = this.state.text.trim();
-	    if (!text || !author) {
-	      return;
-	    }
-	    // TODO: send request to the server
-	    this.props.onCommentSubmit({ author: author, text: text });
-	    this.setState({ author: '', text: '' });
-	  },
-	  render: function () {
-	    return React.createElement(
-	      'form',
-	      { className: 'commentForm', onSubmit: this.handleSubmit },
-	      React.createElement('input', {
-	        type: 'text',
-	        placeholder: 'Your name',
-	        value: this.state.author,
-	        onChange: this.handleAuthorChange
-	      }),
-	      React.createElement('input', {
-	        type: 'text',
-	        placeholder: 'Say something...',
-	        value: this.state.text,
-	        onChange: this.handleTextChange
-	      }),
-	      React.createElement('input', { type: 'submit', value: 'Post' })
-	    );
-	  }
-	});
-	var CommentBox = React.createClass({
-	  displayName: 'CommentBox',
-
-	  loadCommentsFromServer: function () {
-	    $.ajax({
-	      url: this.props.url,
-	      dataType: 'json',
-	      cache: false,
-	      success: function (data) {
-	        this.setState({ data: data });
-	      }.bind(this),
-	      error: function (xhr, status, err) {
-	        console.error(this.props.url, status, err.toString());
-	      }.bind(this)
-	    });
-	  },
-	  handleCommentSubmit: function (comment) {
-	    $.ajax({
-	      url: this.props.url,
-	      dataType: 'json',
-	      type: 'POST',
-	      data: comment,
-	      success: function (data) {
-	        this.setState({ data: data });
-	      }.bind(this),
-	      error: function (xhr, status, err) {
-	        console.error(this.props.url, status, err.toString());
-	      }.bind(this)
-	    });
-	  },
-	  getInitialState: function () {
-	    return { data: [] };
-	  },
-	  componentDidMount: function () {
-	    this.loadCommentsFromServer();
-	    setInterval(this.loadCommentsFromServer, this.props.pollInterval);
-	  },
-	  render: function () {
-	    return React.createElement(
-	      'div',
-	      { className: 'commentBox' },
-	      React.createElement(
-	        'h1',
+	        'td',
 	        null,
-	        'Comments'
-	      ),
-	      React.createElement(CommentList, { data: this.state.data }),
-	      React.createElement(CommentForm, { onCommentSubmit: this.handleCommentSubmit })
+	        description
+	      )
 	    );
 	  }
 	});
 
-	const ProgressValues = [{ value: '3', label: 'GASP!' }, { value: '2', label: 'Smiley' }, { value: '1', label: 'Thumbs Up' }, { value: '0', label: 'OK' }, { value: '-1', label: 'Thumbs Down' }, { value: '-2', label: 'Frowny' }, { value: '-2', label: 'GROAN!' }];
-
-	var Progress = React.createClass({
-	  displayName: 'Progress',
+	var LearningObjective = React.createClass({
+	  displayName: 'LearningObjective',
 
 	  render: function () {
-	    var md = new Remarkable();
-	    var student = this.props.studentValues.find(function (row) {
-	      return row.value == this.props.idPerson;
-	    }.bind(this));
+
+	    var name = this.props.name;
+
+	    var subject = this.props.subject;
+
+	    var standard = this.props.standard;
+
+	    var section = this.props.section;
+
+	    var description = this.props.description;
+
+	    return React.createElement(
+	      'tr',
+	      { className: 'LearningObjective' },
+	      React.createElement(
+	        'td',
+	        null,
+	        name
+	      ),
+	      React.createElement(
+	        'td',
+	        null,
+	        subject
+	      ),
+	      React.createElement(
+	        'td',
+	        null,
+	        standard
+	      ),
+	      React.createElement(
+	        'td',
+	        null,
+	        section
+	      ),
+	      React.createElement(
+	        'td',
+	        null,
+	        description
+	      )
+	    );
+	  }
+	});
+
+	var WeeklyReport = React.createClass({
+	  displayName: 'WeeklyReport',
+
+	  render: function () {
+
+	    var teacher = this.props.teacher;
+
+	    var student = this.props.student;
+
 	    var week = this.props.week;
-	    var effort = ProgressValues.find(function (row) {
-	      return row.value == this.props.effort;
-	    }.bind(this));
-	    var achievement = ProgressValues.find(function (row) {
-	      return row.value == this.props.achievement;
-	    }.bind(this));
-	    var cooperation = ProgressValues.find(function (row) {
-	      return row.value == this.props.cooperation;
-	    }.bind(this));
+
+	    var objective = this.props.objective;
+
+	    var acceleration = this.props.acceleration;
+
+	    var effort = this.props.effort;
+
+	    var progress = this.props.progress;
+
+	    var cooperation = this.props.cooperation;
+
 	    return React.createElement(
 	      'tr',
-	      { className: 'progress' },
+	      { className: 'WeeklyReport' },
 	      React.createElement(
 	        'td',
 	        null,
-	        student.label
+	        teacher
+	      ),
+	      React.createElement(
+	        'td',
+	        null,
+	        student
 	      ),
 	      React.createElement(
 	        'td',
@@ -388,31 +432,45 @@
 	      React.createElement(
 	        'td',
 	        null,
-	        effort.label
+	        objective
 	      ),
 	      React.createElement(
 	        'td',
 	        null,
-	        achievement.label
+	        acceleration
 	      ),
 	      React.createElement(
 	        'td',
 	        null,
-	        cooperation.label
+	        effort
+	      ),
+	      React.createElement(
+	        'td',
+	        null,
+	        progress
+	      ),
+	      React.createElement(
+	        'td',
+	        null,
+	        cooperation
 	      )
 	    );
 	  }
 	});
-	var ProgressList = React.createClass({
-	  displayName: 'ProgressList',
+
+	var OrganizationList = React.createClass({
+	  displayName: 'OrganizationList',
 
 	  render: function () {
 	    var nodes = this.props.data.map(function (row) {
-	      return React.createElement(Progress, { idPerson: row.idPerson, week: row.week, effort: row.effort, achievement: row.achievement, cooperation: row.cooperation, key: row.id, studentValues: this.props.studentValues });
+	      return React.createElement(Organization, {
+	        name: row.name,
+	        description: row.description
+	      });
 	    }.bind(this));
 	    return React.createElement(
 	      'div',
-	      { className: 'progressList' },
+	      { className: 'OrganizationList' },
 	      React.createElement(
 	        'table',
 	        null,
@@ -426,127 +484,253 @@
 	  }
 	});
 
-	var ProgressForm = React.createClass({
-	  displayName: 'ProgressForm',
+	var EffortCreditList = React.createClass({
+	  displayName: 'EffortCreditList',
 
-	  weekValues: [],
-	  componentDidMount: function () {
-	    var today = this.getWeekBegin(new Date());
-	    var result = [];
-	    for (var i = 0; i < 4; i = i + 1) {
-	      today.setDate(today.getDate() - 7);
-	    }
-	    for (var i = 0; i < 9; i = i + 1) {
-	      this.weekValues.push({ value: today.toDateString(), label: this.getWeekLabel(today) });
-	      today.setDate(today.getDate() + 7);
-	    }
-	  },
-	  getInitialState: function () {
-	    return { author: '', text: '' };
-	  },
-	  getWeekBegin: function (date) {
-	    var day = date.getDay();
-	    var diff = date.getDate() - day + (day == 0 ? -6 : 1);
-	    date.setDate(diff);
-	    return date;
-	  },
-	  getWeekEnd: function (date) {
-	    day = date.getDay();
-	    diff = date.getDate() + (6 - day);
-	    date.setDate(diff);
-	    return date;
-	  },
-	  getWeekLabel: function (code) {
-	    var date = new Date(code);
-
-	    var wbegin = this.getWeekBegin(date);
-
-	    date = new Date(code);
-	    var wend = this.getWeekEnd(date);
-	    return wbegin.toDateString() + "-" + wend.toDateString();
-	  },
-	  handleStudentChange: function (value) {
-	    this.setState({ idPerson: value });
-	  },
-	  handleWeekChange: function (value) {
-	    this.setState({ week: value });
-	  },
-	  handleEffortChange: function (value) {
-	    this.setState({ effort: value });
-	  },
-	  handleAchievementChange: function (value) {
-	    this.setState({ achievement: value });
-	  },
-	  handleCooperationChange: function (value) {
-	    this.setState({ cooperation: value });
-	  },
-	  handleSubmit: function (e) {
-	    e.preventDefault();
-	    var idPerson = this.state.idPerson;
-	    var week = this.state.week;
-	    var effort = this.state.effort;
-	    var achievement = this.state.achievement;
-	    var cooperation = this.state.cooperation;
-	    if (!idPerson || !week || !effort || !achievement || !cooperation) {
-	      return;
-	    }
-	    // TODO: send request to the server
-	    this.props.onSubmit({ idPerson: idPerson, week: week, effort: effort, achievement: achievement, cooperation: cooperation });
-	    this.setState({ author: '', text: '' });
-	  },
 	  render: function () {
+	    var nodes = this.props.data.map(function (row) {
+	      return React.createElement(EffortCredit, {
+	        name: row.name,
+	        description: row.description
+	      });
+	    }.bind(this));
 	    return React.createElement(
-	      'form',
-	      { className: 'progressForm', onSubmit: this.handleSubmit },
-	      React.createElement(Dropdown, {
-	        auto: true,
-	        onChange: this.handleStudentChange,
-	        source: this.props.studentValues,
-	        value: this.state.idPerson,
-	        label: 'Weekly Report for Student:'
-	      }),
-	      React.createElement(Dropdown, {
-	        auto: true,
-	        onChange: this.handleWeekChange,
-	        source: this.weekValues,
-	        value: this.state.week,
-	        label: 'Week:'
-	      }),
-	      React.createElement(Dropdown, {
-	        auto: true,
-	        onChange: this.handleEffortChange,
-	        source: ProgressValues,
-	        value: this.state.effort,
-	        label: 'Effort:'
-	      }),
-	      React.createElement(Dropdown, {
-	        auto: true,
-	        onChange: this.handleAchievementChange,
-	        source: ProgressValues,
-	        value: this.state.achievement,
-	        label: 'Achievement:'
-	      }),
-	      React.createElement(Dropdown, {
-	        auto: true,
-	        onChange: this.handleCooperationChange,
-	        source: ProgressValues,
-	        value: this.state.cooperation,
-	        label: 'Cooperation:'
-	      }),
-	      React.createElement('input', { type: 'submit', value: 'Post' })
+	      'div',
+	      { className: 'EffortCreditList' },
+	      React.createElement(
+	        'table',
+	        null,
+	        React.createElement(
+	          'tbody',
+	          null,
+	          nodes
+	        )
+	      )
 	    );
 	  }
 	});
-	var ProgressBox = React.createClass({
-	  displayName: 'ProgressBox',
 
-	  setStudentValues: function (people) {
-	    var studentValues = [];
-	    for (index = 0; index < people.length; index++) {
-	      studentValues.push({ value: people[index].id, label: people[index].surname + ", " + people[index].given });
-	    }
-	    this.setState({ studentValues: studentValues });
-	  },
+	var MasteryCreditList = React.createClass({
+	  displayName: 'MasteryCreditList',
+
+	  render: function () {
+	    var nodes = this.props.data.map(function (row) {
+	      return React.createElement(MasteryCredit, {
+	        name: row.name,
+	        description: row.description
+	      });
+	    }.bind(this));
+	    return React.createElement(
+	      'div',
+	      { className: 'MasteryCreditList' },
+	      React.createElement(
+	        'table',
+	        null,
+	        React.createElement(
+	          'tbody',
+	          null,
+	          nodes
+	        )
+	      )
+	    );
+	  }
+	});
+
+	var CooperationCreditList = React.createClass({
+	  displayName: 'CooperationCreditList',
+
+	  render: function () {
+	    var nodes = this.props.data.map(function (row) {
+	      return React.createElement(CooperationCredit, {
+	        name: row.name,
+	        description: row.description
+	      });
+	    }.bind(this));
+	    return React.createElement(
+	      'div',
+	      { className: 'CooperationCreditList' },
+	      React.createElement(
+	        'table',
+	        null,
+	        React.createElement(
+	          'tbody',
+	          null,
+	          nodes
+	        )
+	      )
+	    );
+	  }
+	});
+
+	var AccelerationValueList = React.createClass({
+	  displayName: 'AccelerationValueList',
+
+	  render: function () {
+	    var nodes = this.props.data.map(function (row) {
+	      return React.createElement(AccelerationValue, {
+	        name: row.name,
+	        description: row.description
+	      });
+	    }.bind(this));
+	    return React.createElement(
+	      'div',
+	      { className: 'AccelerationValueList' },
+	      React.createElement(
+	        'table',
+	        null,
+	        React.createElement(
+	          'tbody',
+	          null,
+	          nodes
+	        )
+	      )
+	    );
+	  }
+	});
+
+	var PersonList = React.createClass({
+	  displayName: 'PersonList',
+
+	  render: function () {
+	    var nodes = this.props.data.map(function (row) {
+	      return React.createElement(Person, {
+	        surName: row.surName,
+	        givenName: row.givenName
+	      });
+	    }.bind(this));
+	    return React.createElement(
+	      'div',
+	      { className: 'PersonList' },
+	      React.createElement(
+	        'table',
+	        null,
+	        React.createElement(
+	          'tbody',
+	          null,
+	          nodes
+	        )
+	      )
+	    );
+	  }
+	});
+
+	var StandardList = React.createClass({
+	  displayName: 'StandardList',
+
+	  render: function () {
+	    var nodes = this.props.data.map(function (row) {
+	      return React.createElement(Standard, {
+	        name: row.name,
+	        description: row.description
+	      });
+	    }.bind(this));
+	    return React.createElement(
+	      'div',
+	      { className: 'StandardList' },
+	      React.createElement(
+	        'table',
+	        null,
+	        React.createElement(
+	          'tbody',
+	          null,
+	          nodes
+	        )
+	      )
+	    );
+	  }
+	});
+
+	var SubjectList = React.createClass({
+	  displayName: 'SubjectList',
+
+	  render: function () {
+	    var nodes = this.props.data.map(function (row) {
+	      return React.createElement(Subject, {
+	        name: row.name,
+	        description: row.description
+	      });
+	    }.bind(this));
+	    return React.createElement(
+	      'div',
+	      { className: 'SubjectList' },
+	      React.createElement(
+	        'table',
+	        null,
+	        React.createElement(
+	          'tbody',
+	          null,
+	          nodes
+	        )
+	      )
+	    );
+	  }
+	});
+
+	var LearningObjectiveList = React.createClass({
+	  displayName: 'LearningObjectiveList',
+
+	  render: function () {
+	    var nodes = this.props.data.map(function (row) {
+	      return React.createElement(LearningObjective, {
+	        name: row.name,
+	        subject: row.subject,
+	        standard: row.standard,
+	        section: row.section,
+	        description: row.description
+	      });
+	    }.bind(this));
+	    return React.createElement(
+	      'div',
+	      { className: 'LearningObjectiveList' },
+	      React.createElement(
+	        'table',
+	        null,
+	        React.createElement(
+	          'tbody',
+	          null,
+	          nodes
+	        )
+	      )
+	    );
+	  }
+	});
+
+	var WeeklyReportList = React.createClass({
+	  displayName: 'WeeklyReportList',
+
+	  render: function () {
+	    var nodes = this.props.data.map(function (row) {
+	      return React.createElement(WeeklyReport, {
+	        teacher: row.teacher,
+	        student: row.student,
+	        week: row.week,
+	        objective: row.objective,
+	        acceleration: row.acceleration,
+	        effort: row.effort,
+	        progress: row.progress,
+	        cooperation: row.cooperation
+	      });
+	    }.bind(this));
+	    return React.createElement(
+	      'div',
+	      { className: 'WeeklyReportList' },
+	      React.createElement(
+	        'table',
+	        null,
+	        React.createElement(
+	          'tbody',
+	          null,
+	          nodes
+	        )
+	      )
+	    );
+	  }
+	});
+
+	var OrganizationBrowser = React.createClass({
+	  displayName: 'OrganizationBrowser',
+
+
 	  loadFromServer: function () {
 	    $.ajax({
 	      url: this.props.url,
@@ -557,17 +741,6 @@
 	      }.bind(this),
 	      error: function (xhr, status, err) {
 	        console.error(this.props.url, status, err.toString());
-	      }.bind(this)
-	    });
-	    $.ajax({
-	      url: 'api/people',
-	      dataType: 'json',
-	      cache: false,
-	      success: function (data) {
-	        this.setStudentValues(data);
-	      }.bind(this),
-	      error: function (xhr, status, err) {
-	        console.error('api/people', status, err.toString());
 	      }.bind(this)
 	    });
 	  },
@@ -586,7 +759,8 @@
 	    });
 	  },
 	  getInitialState: function () {
-	    return { data: [], studentValues: [] };
+	    return { data: []
+	    };
 	  },
 	  componentDidMount: function () {
 	    this.loadFromServer();
@@ -595,19 +769,776 @@
 	  render: function () {
 	    return React.createElement(
 	      'div',
-	      { className: 'progressBox' },
+	      { className: 'OrganizationBrowser' },
 	      React.createElement(
 	        'h1',
 	        null,
-	        'Weekly Progress Reports'
+	        'List of Organization'
 	      ),
-	      React.createElement(ProgressList, { data: this.state.data, studentValues: this.state.studentValues }),
+	      React.createElement(OrganizationList, { data: this.state.data
+	      })
+	    );
+	  }
+	});
+
+	var EffortCreditBrowser = React.createClass({
+	  displayName: 'EffortCreditBrowser',
+
+
+	  loadFromServer: function () {
+	    $.ajax({
+	      url: this.props.url,
+	      dataType: 'json',
+	      cache: false,
+	      success: function (data) {
+	        this.setState({ data: data });
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+	        console.error(this.props.url, status, err.toString());
+	      }.bind(this)
+	    });
+	  },
+	  handleSubmit: function (row) {
+	    $.ajax({
+	      url: this.props.url,
+	      dataType: 'json',
+	      type: 'POST',
+	      data: row,
+	      success: function (data) {
+	        this.setState({ data: data });
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+	        console.error(this.props.url, status, err.toString());
+	      }.bind(this)
+	    });
+	  },
+	  getInitialState: function () {
+	    return { data: []
+	    };
+	  },
+	  componentDidMount: function () {
+	    this.loadFromServer();
+	    setInterval(this.loadFromServer, this.props.pollInterval);
+	  },
+	  render: function () {
+	    return React.createElement(
+	      'div',
+	      { className: 'EffortCreditBrowser' },
 	      React.createElement(
 	        'h1',
 	        null,
-	        'add Progress Report'
+	        'List of EffortCredit'
 	      ),
-	      React.createElement(ProgressForm, { onSubmit: this.handleSubmit, studentValues: this.state.studentValues })
+	      React.createElement(EffortCreditList, { data: this.state.data
+	      })
+	    );
+	  }
+	});
+
+	var MasteryCreditBrowser = React.createClass({
+	  displayName: 'MasteryCreditBrowser',
+
+
+	  loadFromServer: function () {
+	    $.ajax({
+	      url: this.props.url,
+	      dataType: 'json',
+	      cache: false,
+	      success: function (data) {
+	        this.setState({ data: data });
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+	        console.error(this.props.url, status, err.toString());
+	      }.bind(this)
+	    });
+	  },
+	  handleSubmit: function (row) {
+	    $.ajax({
+	      url: this.props.url,
+	      dataType: 'json',
+	      type: 'POST',
+	      data: row,
+	      success: function (data) {
+	        this.setState({ data: data });
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+	        console.error(this.props.url, status, err.toString());
+	      }.bind(this)
+	    });
+	  },
+	  getInitialState: function () {
+	    return { data: []
+	    };
+	  },
+	  componentDidMount: function () {
+	    this.loadFromServer();
+	    setInterval(this.loadFromServer, this.props.pollInterval);
+	  },
+	  render: function () {
+	    return React.createElement(
+	      'div',
+	      { className: 'MasteryCreditBrowser' },
+	      React.createElement(
+	        'h1',
+	        null,
+	        'List of MasteryCredit'
+	      ),
+	      React.createElement(MasteryCreditList, { data: this.state.data
+	      })
+	    );
+	  }
+	});
+
+	var CooperationCreditBrowser = React.createClass({
+	  displayName: 'CooperationCreditBrowser',
+
+
+	  loadFromServer: function () {
+	    $.ajax({
+	      url: this.props.url,
+	      dataType: 'json',
+	      cache: false,
+	      success: function (data) {
+	        this.setState({ data: data });
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+	        console.error(this.props.url, status, err.toString());
+	      }.bind(this)
+	    });
+	  },
+	  handleSubmit: function (row) {
+	    $.ajax({
+	      url: this.props.url,
+	      dataType: 'json',
+	      type: 'POST',
+	      data: row,
+	      success: function (data) {
+	        this.setState({ data: data });
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+	        console.error(this.props.url, status, err.toString());
+	      }.bind(this)
+	    });
+	  },
+	  getInitialState: function () {
+	    return { data: []
+	    };
+	  },
+	  componentDidMount: function () {
+	    this.loadFromServer();
+	    setInterval(this.loadFromServer, this.props.pollInterval);
+	  },
+	  render: function () {
+	    return React.createElement(
+	      'div',
+	      { className: 'CooperationCreditBrowser' },
+	      React.createElement(
+	        'h1',
+	        null,
+	        'List of CooperationCredit'
+	      ),
+	      React.createElement(CooperationCreditList, { data: this.state.data
+	      })
+	    );
+	  }
+	});
+
+	var AccelerationValueBrowser = React.createClass({
+	  displayName: 'AccelerationValueBrowser',
+
+
+	  loadFromServer: function () {
+	    $.ajax({
+	      url: this.props.url,
+	      dataType: 'json',
+	      cache: false,
+	      success: function (data) {
+	        this.setState({ data: data });
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+	        console.error(this.props.url, status, err.toString());
+	      }.bind(this)
+	    });
+	  },
+	  handleSubmit: function (row) {
+	    $.ajax({
+	      url: this.props.url,
+	      dataType: 'json',
+	      type: 'POST',
+	      data: row,
+	      success: function (data) {
+	        this.setState({ data: data });
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+	        console.error(this.props.url, status, err.toString());
+	      }.bind(this)
+	    });
+	  },
+	  getInitialState: function () {
+	    return { data: []
+	    };
+	  },
+	  componentDidMount: function () {
+	    this.loadFromServer();
+	    setInterval(this.loadFromServer, this.props.pollInterval);
+	  },
+	  render: function () {
+	    return React.createElement(
+	      'div',
+	      { className: 'AccelerationValueBrowser' },
+	      React.createElement(
+	        'h1',
+	        null,
+	        'List of AccelerationValue'
+	      ),
+	      React.createElement(AccelerationValueList, { data: this.state.data
+	      })
+	    );
+	  }
+	});
+
+	var PersonBrowser = React.createClass({
+	  displayName: 'PersonBrowser',
+
+
+	  loadFromServer: function () {
+	    $.ajax({
+	      url: this.props.url,
+	      dataType: 'json',
+	      cache: false,
+	      success: function (data) {
+	        this.setState({ data: data });
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+	        console.error(this.props.url, status, err.toString());
+	      }.bind(this)
+	    });
+	  },
+	  handleSubmit: function (row) {
+	    $.ajax({
+	      url: this.props.url,
+	      dataType: 'json',
+	      type: 'POST',
+	      data: row,
+	      success: function (data) {
+	        this.setState({ data: data });
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+	        console.error(this.props.url, status, err.toString());
+	      }.bind(this)
+	    });
+	  },
+	  getInitialState: function () {
+	    return { data: []
+	    };
+	  },
+	  componentDidMount: function () {
+	    this.loadFromServer();
+	    setInterval(this.loadFromServer, this.props.pollInterval);
+	  },
+	  render: function () {
+	    return React.createElement(
+	      'div',
+	      { className: 'PersonBrowser' },
+	      React.createElement(
+	        'h1',
+	        null,
+	        'List of Person'
+	      ),
+	      React.createElement(PersonList, { data: this.state.data
+	      })
+	    );
+	  }
+	});
+
+	var StandardBrowser = React.createClass({
+	  displayName: 'StandardBrowser',
+
+
+	  loadFromServer: function () {
+	    $.ajax({
+	      url: this.props.url,
+	      dataType: 'json',
+	      cache: false,
+	      success: function (data) {
+	        this.setState({ data: data });
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+	        console.error(this.props.url, status, err.toString());
+	      }.bind(this)
+	    });
+	  },
+	  handleSubmit: function (row) {
+	    $.ajax({
+	      url: this.props.url,
+	      dataType: 'json',
+	      type: 'POST',
+	      data: row,
+	      success: function (data) {
+	        this.setState({ data: data });
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+	        console.error(this.props.url, status, err.toString());
+	      }.bind(this)
+	    });
+	  },
+	  getInitialState: function () {
+	    return { data: []
+	    };
+	  },
+	  componentDidMount: function () {
+	    this.loadFromServer();
+	    setInterval(this.loadFromServer, this.props.pollInterval);
+	  },
+	  render: function () {
+	    return React.createElement(
+	      'div',
+	      { className: 'StandardBrowser' },
+	      React.createElement(
+	        'h1',
+	        null,
+	        'List of Standard'
+	      ),
+	      React.createElement(StandardList, { data: this.state.data
+	      })
+	    );
+	  }
+	});
+
+	var SubjectBrowser = React.createClass({
+	  displayName: 'SubjectBrowser',
+
+
+	  loadFromServer: function () {
+	    $.ajax({
+	      url: this.props.url,
+	      dataType: 'json',
+	      cache: false,
+	      success: function (data) {
+	        this.setState({ data: data });
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+	        console.error(this.props.url, status, err.toString());
+	      }.bind(this)
+	    });
+	  },
+	  handleSubmit: function (row) {
+	    $.ajax({
+	      url: this.props.url,
+	      dataType: 'json',
+	      type: 'POST',
+	      data: row,
+	      success: function (data) {
+	        this.setState({ data: data });
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+	        console.error(this.props.url, status, err.toString());
+	      }.bind(this)
+	    });
+	  },
+	  getInitialState: function () {
+	    return { data: []
+	    };
+	  },
+	  componentDidMount: function () {
+	    this.loadFromServer();
+	    setInterval(this.loadFromServer, this.props.pollInterval);
+	  },
+	  render: function () {
+	    return React.createElement(
+	      'div',
+	      { className: 'SubjectBrowser' },
+	      React.createElement(
+	        'h1',
+	        null,
+	        'List of Subject'
+	      ),
+	      React.createElement(SubjectList, { data: this.state.data
+	      })
+	    );
+	  }
+	});
+
+	var LearningObjectiveBrowser = React.createClass({
+	  displayName: 'LearningObjectiveBrowser',
+
+
+	  subjectLoaded: function (rows) {
+	    var values = [];
+	    for (index = 0; index < rows.length; index++) {
+	      var value = new subject();
+	      value.setState({
+	        name: rows[index].name,
+
+	        description: rows[index].description
+	      });
+	      values.push(value);
+	    }
+	    this.setState({ subjectValues: values });
+	  },
+
+	  standardLoaded: function (rows) {
+	    var values = [];
+	    for (index = 0; index < rows.length; index++) {
+	      var value = new standard();
+	      value.setState({
+	        name: rows[index].name,
+
+	        description: rows[index].description
+	      });
+	      values.push(value);
+	    }
+	    this.setState({ standardValues: values });
+	  },
+
+	  loadFromServer: function () {
+	    $.ajax({
+	      url: this.props.url,
+	      dataType: 'json',
+	      cache: false,
+	      success: function (data) {
+	        this.setState({ data: data });
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+	        console.error(this.props.url, status, err.toString());
+	      }.bind(this)
+	    });
+
+	    $.ajax({
+	      url: 'api/Subject',
+
+	      dataType: 'json',
+	      cache: false,
+	      success: function (data) {
+	        this.subjectLoaded(data);
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+
+	        console.error('api/Subject', status, err.toString());
+	      }.bind(this)
+	    });
+
+	    $.ajax({
+	      url: 'api/Standard',
+
+	      dataType: 'json',
+	      cache: false,
+	      success: function (data) {
+	        this.standardLoaded(data);
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+
+	        console.error('api/Standard', status, err.toString());
+	      }.bind(this)
+	    });
+	  },
+	  handleSubmit: function (row) {
+	    $.ajax({
+	      url: this.props.url,
+	      dataType: 'json',
+	      type: 'POST',
+	      data: row,
+	      success: function (data) {
+	        this.setState({ data: data });
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+	        console.error(this.props.url, status, err.toString());
+	      }.bind(this)
+	    });
+	  },
+	  getInitialState: function () {
+	    return { data: [],
+	      subjectValues: [],
+	      standardValues: []
+	    };
+	  },
+	  componentDidMount: function () {
+	    this.loadFromServer();
+	    setInterval(this.loadFromServer, this.props.pollInterval);
+	  },
+	  render: function () {
+	    return React.createElement(
+	      'div',
+	      { className: 'LearningObjectiveBrowser' },
+	      React.createElement(
+	        'h1',
+	        null,
+	        'List of LearningObjective'
+	      ),
+	      React.createElement(LearningObjectiveList, { data: this.state.data,
+	        subjectValues: this.state.studentValues,
+	        standardValues: this.state.studentValues
+	      })
+	    );
+	  }
+	});
+
+	var WeeklyReportBrowser = React.createClass({
+	  displayName: 'WeeklyReportBrowser',
+
+
+	  teacherLoaded: function (rows) {
+	    var values = [];
+	    for (index = 0; index < rows.length; index++) {
+	      var value = new teacher();
+	      value.setState({
+	        surName: rows[index].surName,
+
+	        givenName: rows[index].givenName
+	      });
+	      values.push(value);
+	    }
+	    this.setState({ teacherValues: values });
+	  },
+
+	  studentLoaded: function (rows) {
+	    var values = [];
+	    for (index = 0; index < rows.length; index++) {
+	      var value = new student();
+	      value.setState({
+	        surName: rows[index].surName,
+
+	        givenName: rows[index].givenName
+	      });
+	      values.push(value);
+	    }
+	    this.setState({ studentValues: values });
+	  },
+
+	  objectiveLoaded: function (rows) {
+	    var values = [];
+	    for (index = 0; index < rows.length; index++) {
+	      var value = new objective();
+	      value.setState({
+	        name: rows[index].name,
+
+	        subject: rows[index].subject,
+
+	        standard: rows[index].standard,
+
+	        section: rows[index].section,
+
+	        description: rows[index].description
+	      });
+	      values.push(value);
+	    }
+	    this.setState({ objectiveValues: values });
+	  },
+
+	  accelerationLoaded: function (rows) {
+	    var values = [];
+	    for (index = 0; index < rows.length; index++) {
+	      var value = new acceleration();
+	      value.setState({
+	        name: rows[index].name,
+
+	        description: rows[index].description
+	      });
+	      values.push(value);
+	    }
+	    this.setState({ accelerationValues: values });
+	  },
+
+	  effortLoaded: function (rows) {
+	    var values = [];
+	    for (index = 0; index < rows.length; index++) {
+	      var value = new effort();
+	      value.setState({
+	        name: rows[index].name,
+
+	        description: rows[index].description
+	      });
+	      values.push(value);
+	    }
+	    this.setState({ effortValues: values });
+	  },
+
+	  progressLoaded: function (rows) {
+	    var values = [];
+	    for (index = 0; index < rows.length; index++) {
+	      var value = new progress();
+	      value.setState({
+	        name: rows[index].name,
+
+	        description: rows[index].description
+	      });
+	      values.push(value);
+	    }
+	    this.setState({ progressValues: values });
+	  },
+
+	  cooperationLoaded: function (rows) {
+	    var values = [];
+	    for (index = 0; index < rows.length; index++) {
+	      var value = new cooperation();
+	      value.setState({
+	        name: rows[index].name,
+
+	        description: rows[index].description
+	      });
+	      values.push(value);
+	    }
+	    this.setState({ cooperationValues: values });
+	  },
+
+	  loadFromServer: function () {
+	    $.ajax({
+	      url: this.props.url,
+	      dataType: 'json',
+	      cache: false,
+	      success: function (data) {
+	        this.setState({ data: data });
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+	        console.error(this.props.url, status, err.toString());
+	      }.bind(this)
+	    });
+
+	    $.ajax({
+	      url: 'api/Person',
+
+	      dataType: 'json',
+	      cache: false,
+	      success: function (data) {
+	        this.teacherLoaded(data);
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+
+	        console.error('api/Person', status, err.toString());
+	      }.bind(this)
+	    });
+
+	    $.ajax({
+	      url: 'api/Person',
+
+	      dataType: 'json',
+	      cache: false,
+	      success: function (data) {
+	        this.studentLoaded(data);
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+
+	        console.error('api/Person', status, err.toString());
+	      }.bind(this)
+	    });
+
+	    $.ajax({
+	      url: 'api/LearningObjective',
+
+	      dataType: 'json',
+	      cache: false,
+	      success: function (data) {
+	        this.objectiveLoaded(data);
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+
+	        console.error('api/LearningObjective', status, err.toString());
+	      }.bind(this)
+	    });
+
+	    $.ajax({
+	      url: 'api/AccelerationValue',
+
+	      dataType: 'json',
+	      cache: false,
+	      success: function (data) {
+	        this.accelerationLoaded(data);
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+
+	        console.error('api/AccelerationValue', status, err.toString());
+	      }.bind(this)
+	    });
+
+	    $.ajax({
+	      url: 'api/EffortCredit',
+
+	      dataType: 'json',
+	      cache: false,
+	      success: function (data) {
+	        this.effortLoaded(data);
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+
+	        console.error('api/EffortCredit', status, err.toString());
+	      }.bind(this)
+	    });
+
+	    $.ajax({
+	      url: 'api/MasteryCredit',
+
+	      dataType: 'json',
+	      cache: false,
+	      success: function (data) {
+	        this.progressLoaded(data);
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+
+	        console.error('api/MasteryCredit', status, err.toString());
+	      }.bind(this)
+	    });
+
+	    $.ajax({
+	      url: 'api/CooperationCredit',
+
+	      dataType: 'json',
+	      cache: false,
+	      success: function (data) {
+	        this.cooperationLoaded(data);
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+
+	        console.error('api/CooperationCredit', status, err.toString());
+	      }.bind(this)
+	    });
+	  },
+	  handleSubmit: function (row) {
+	    $.ajax({
+	      url: this.props.url,
+	      dataType: 'json',
+	      type: 'POST',
+	      data: row,
+	      success: function (data) {
+	        this.setState({ data: data });
+	      }.bind(this),
+	      error: function (xhr, status, err) {
+	        console.error(this.props.url, status, err.toString());
+	      }.bind(this)
+	    });
+	  },
+	  getInitialState: function () {
+	    return { data: [],
+	      teacherValues: [],
+	      studentValues: [],
+	      objectiveValues: [],
+	      accelerationValues: [],
+	      effortValues: [],
+	      progressValues: [],
+	      cooperationValues: []
+	    };
+	  },
+	  componentDidMount: function () {
+	    this.loadFromServer();
+	    setInterval(this.loadFromServer, this.props.pollInterval);
+	  },
+	  render: function () {
+	    return React.createElement(
+	      'div',
+	      { className: 'WeeklyReportBrowser' },
+	      React.createElement(
+	        'h1',
+	        null,
+	        'List of WeeklyReport'
+	      ),
+	      React.createElement(WeeklyReportList, { data: this.state.data,
+	        teacherValues: this.state.studentValues,
+	        studentValues: this.state.studentValues,
+	        objectiveValues: this.state.studentValues,
+	        accelerationValues: this.state.studentValues,
+	        effortValues: this.state.studentValues,
+	        progressValues: this.state.studentValues,
+	        cooperationValues: this.state.studentValues
+	      })
 	    );
 	  }
 	});

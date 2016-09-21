@@ -28,8 +28,12 @@ for arg in sys.argv:
         print """
 @app.route('/api/%(name)s', methods=['GET', 'POST'])
 def %(name)s_handler():
-    with open('%(name)s.json', 'r') as f:
+    items = []
+    try:
+        f = open('%(name)s.json', 'r')
         items = json.loads(f.read())
+    except:
+        print "JSON database file %(name)s does not exist yet, will be created on the first POST"
 
     if request.method == 'POST':
         new_item = request.form.to_dict()
@@ -48,6 +52,37 @@ def %(name)s_handler():
         }
     )
         """ % objType.attrib
+
+    relTypes = root.findall('relType')
+    for relType in relTypes :
+        print """
+@app.route('/api/%(name)s', methods=['GET', 'POST'])
+def %(name)s_handler():
+    items = []
+    try:
+        f = open('%(name)s.json', 'r')
+        items = json.loads(f.read())
+    except:
+        print "JSON database file %(name)s does not exist yet, will be created on the first POST"
+
+    if request.method == 'POST':
+        new_item = request.form.to_dict()
+        new_item['id'] = int(time.time() * 1000)
+        items.append(new_item)
+
+        with open('%(name)s.json', 'w') as f:
+            f.write(json.dumps(items, indent=4, separators=(',', ': ')))
+
+    return Response(
+        json.dumps(items),
+        mimetype='application/json',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Access-Control-Allow-Origin': '*'
+        }
+    )
+        """ % relType.attrib
+
   argi = argi + 1
 
 print """

@@ -2,19 +2,26 @@
 <!-- Weekly Report = Teacher * Student * Learning Objective => Effort * Cooperation * Progress -->
 <!-- Clueless vs. Working vs. Mastery -->
 
-<application name="protrac">
+<application name="ProgressTrackingApp">
+    <view name="Application">
+        <browse type="Person"/>
+        <browse type="Standard"/>
+        <browse type="Subject"/>
+        <browse type="LearningObjective"/>
+        <browse type="WeeklyReport"/>
+    </view>
     <objType name="Organization">
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="description" type="StringComments"/>
     </objType>
-    <objType name="TeacherOf">
+    <relType name="TeacherOf">
         <propertyType name="teacher" type="Person"/>
         <propertyType name="student" type="Person"/>
-    </objType>
-    <objType name="ParentOf">
+    </relType>
+    <relType name="ParentOf">
         <propertyType name="parent" type="Person"/>
         <propertyType name="student" type="Person"/>
-    </objType>
+    </relType>
     <objType name="EffortCredit">
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="description" type="StringComments"/>
