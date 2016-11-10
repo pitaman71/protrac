@@ -45,26 +45,26 @@
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="description" type="StringComments"/>
     </objType>
-    <object type="EffortCredit"><name name="wow!"/></object>
-    <object type="EffortCredit"><name name="smiley"/></object>
-    <object type="EffortCredit"><name name="okay"/></object>
-    <object type="EffortCredit"><name name="frowny"/></object>
-    <object type="EffortCredit"><name name="uhoh"/></object>
-    <object type="CooperationCredit"><name name="wow!"/></object>
-    <object type="CooperationCredit"><name name="smiley"/></object>
-    <object type="CooperationCredit"><name name="okay"/></object>
-    <object type="CooperationCredit"><name name="frowny"/></object>
-    <object type="CooperationCredit"><name name="uhoh"/></object>
-    <object type="MasteryCredit"><name name="mastery"/></object>
-    <object type="MasteryCredit"><name name="almost"/></object>
-    <object type="MasteryCredit"><name name="partial"/></object>
-    <object type="MasteryCredit"><name name="trying"/></object>
-    <object type="MasteryCredit"><name name="discovering"/></object>
-    <object type="AccelerationValue"><name name="longTermReview"/></object>
-    <object type="AccelerationValue"><name name="selfDirected"/></object>
-    <object type="AccelerationValue"><name name="aboveGradeLevel"/></object>
-    <object type="AccelerationValue"><name name="atGradeLevel"/></object>
-    <object type="AccelerationValue"><name name="belowGradeLevel"/></object>
+    <object type="EffortCredit"><name>wow!</name></object>
+    <object type="EffortCredit"><name>smiley</name></object>
+    <object type="EffortCredit"><name>okay</name></object>
+    <object type="EffortCredit"><name>frowny</name></object>
+    <object type="EffortCredit"><name>uhoh</name></object>
+    <object type="CooperationCredit"><name>wow!</name></object>
+    <object type="CooperationCredit"><name>smiley</name></object>
+    <object type="CooperationCredit"><name>okay</name></object>
+    <object type="CooperationCredit"><name>frowny</name></object>
+    <object type="CooperationCredit"><name>uhoh</name></object>
+    <object type="MasteryCredit"><name>mastery</name></object>
+    <object type="MasteryCredit"><name>almost</name></object>
+    <object type="MasteryCredit"><name>partial</name></object>
+    <object type="MasteryCredit"><name>trying</name></object>
+    <object type="MasteryCredit"><name>discovering</name></object>
+    <object type="AccelerationValue"><name>longTermReview</name></object>
+    <object type="AccelerationValue"><name>selfDirected</name></object>
+    <object type="AccelerationValue"><name>aboveGradeLevel</name></object>
+    <object type="AccelerationValue"><name>atGradeLevel</name></object>
+    <object type="AccelerationValue"><name>belowGradeLevel</name></object>
     <objType name="Person">
         <labelItem><givenName/><surName/></labelItem>
         <labelList>People</labelList>
