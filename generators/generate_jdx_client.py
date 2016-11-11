@@ -119,6 +119,7 @@ const toolbox = require('react-toolbox');
 const Input = toolbox.Input;
 const Tabs = toolbox.Tabs;
 const Tab = toolbox.Tab;
+const Table = toolbox.Table;
 const Dropdown = toolbox.Dropdown;
 const Button = toolbox.Button;
 const Dialog = toolbox.Dialog;
@@ -203,7 +204,7 @@ var %(name)s = React.createClass({
         """ % objType.attrib
         for propertyType in objType.findall('propertyType'):
             propTypeName = ""
-            if 'type' in propertyType.attrib:
+            if 'type' in propertyType.attrib: 
                 propTypeName = propertyType.get('type')
             userDefs = root.findall('objType[@name=\'%s\']' % propTypeName)
             if len(userDefs) > 0:
@@ -273,6 +274,20 @@ var %(name)s = React.createClass({
         """ % objType.attrib
 
     for objType in root.findall('objType'):
+        print 'const %(name)sModel = {\n' % objType.attrib
+        count = 0
+        for propertyType in objType.findall('propertyType'):
+            if count > 0:
+              print ',\n'
+            propTypeName = ''
+#            if 'type' in propertyType.attrib:
+#                propTypeName = propertyType.get('type')
+            userDefs = root.findall('objType[@name=\'%s\']' % propTypeName)
+            print '%(name)s: { type: String }' % propertyType.attrib
+            count += 1
+        print '};\n'
+
+    for objType in root.findall('objType'):
         print """
 var %(name)sList = React.createClass({
   render: function() {
@@ -308,6 +323,24 @@ var %(name)sList = React.createClass({
   }
 });
         """ % dict(name=objType.get('name'),listSummary=NodeWrapper(root,objType).getListSummary())
+
+    for objType in root.findall('objType'):
+        print """
+var %(name)sTable = React.createClass({
+  getInitialState: function() {
+    return {selected: []};
+  },
+  handleSelect: function(selected) {
+    this.setState({selected: selected});
+    this.props.handleSelect(selected);
+  },
+  render: function() {
+      return (
+        <Table model={%(name)sModel} onSelect={this.handleSelect} source={this.props.data} selected={this.state.selected} selectable/>
+    );
+  }
+});
+        """ % objType.attrib
 
     for objType in root.findall('objType'):
         print """
@@ -376,11 +409,26 @@ var %(name)sBrowser = React.createClass({
                 """ % propertyType.attrib
         print """
   },
-  handleSubmit: function(editorState) {
+  handleSubmit: function(editorState,editorMode) {
     $.ajax({
       url: this.props.url,
       dataType: 'json',
-      type: 'POST',
+      type: editorMode,
+      data: editorState,
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+  },
+
+  handleDelete: function(editorState) {
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      type: 'DELETE',
       data: editorState,
       success: function(data) {
         this.setState({data: data});
@@ -392,7 +440,7 @@ var %(name)sBrowser = React.createClass({
   },
 
   getInitialState: function() {
-    return {data: []""" % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
+    return {selected: [], data: []""" % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
 
         for propertyType in objType.findall('propertyType'):
             propTypeName = ""
@@ -404,14 +452,23 @@ var %(name)sBrowser = React.createClass({
                 print """, %(name)sValues: []""" % propertyType.attrib
         print """};
   },
+  hasSelected: function() {
+    return this.state.selected.length > 0;
+  },
+  getSelected: function() {
+    return this.state.data[this.state.selected[0]];
+  },
   componentDidMount: function() {
     this.loadFromServer();
     setInterval(this.loadFromServer, this.props.pollInterval);
   },
+  handleSelect: function (selected) {
+    this.setState({selected: selected});
+  },
   render: function() {
     return (
       <div className="%(name)sBrowser">
-        <%(name)sList type="%(name)s" data={this.state.data}""" % dict(name=objType.get('name'))
+        <%(name)sTable type="%(name)s" handleSelect={this.handleSelect} data={this.state.data}""" % dict(name=objType.get('name'))
         for propertyType in objType.findall('propertyType'):
             propTypeName = ""
             if 'type' in propertyType.attrib:
@@ -421,7 +478,7 @@ var %(name)sBrowser = React.createClass({
                 userDef = userDefs[len(userDefs)-1]
                 print """ %(name)sValues={this.state.%(name)sValues}""" % propertyType.attrib
         print """/>
-          <%(name)sForm onSubmit={this.handleSubmit} """ % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
+          <%(name)sForm hasSelected={this.hasSelected} getSelected={this.getSelected} onSubmit={this.handleSubmit} onDelete={this.handleDelete} """ % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
         for propertyType in objType.findall('propertyType'):
             propTypeName = ""
             if 'type' in propertyType.attrib:
@@ -453,8 +510,8 @@ var %(name)sForm = React.createClass({
         print """
   getInitialState: function() {
     return { actions: [
-    { label: "Cancel", onClick: this.handleToggle },
-    { label: "Add %(label)s", onClick: this.handleSubmit }
+    { label: "Cancel", onClick: this.handleCancel },
+    { label: "?", onClick: this.handleSubmit }
                       ], 
              editorActive: false, editorValues: {""" % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
         propCount = 0
@@ -466,14 +523,41 @@ var %(name)sForm = React.createClass({
 
         print """}};
   },
-  handleToggle: function() {
-    this.setState({editorActive: !this.state.editorActive});
+  getActionLabel: function() {
+    return this.state.editorMode;
+  },
+  setEditorMode: function(mode) {
+    var newActions = this.state.actions;
+    newActions[1].label = mode+" %(label)s";
+    this.setState({editorActive: true, editorMode: mode, actions: newActions});
+  },
+  handleCancel: function() {
+    this.setState({editorActive: false, editorMode: "OFF"});
+  },
+  beginAdd: function() {
+    this.setEditorMode("ADD");
+  },
+  beginEdit: function() {
+    if(!this.props.hasSelected()) {
+      alert("No %(label)s is selected");
+    } else {
+      this.setState({editorValues: this.props.getSelected()});
+      this.setEditorMode("EDIT");
+    }
+  },
+  beginDelete: function() {
+    if(!this.props.hasSelected()) {
+      alert("No %(label)s is selected");
+    } else {
+      this.setState({editorValues: this.props.getSelected()});
+      this.setEditorMode("DELETE");
+    }
   },
   handleSubmit: function() {
-    this.props.onSubmit(this.state.editorValues);
+    this.props.onSubmit(this.state.editorValues,this.state.editorMode);
     this.setState({editorActive: false});
   },
-              """
+              """ % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
         for propertyType in objType.findall('propertyType'):
             print """      
   handle%(name)sChange: function(value) {
@@ -485,14 +569,17 @@ var %(name)sForm = React.createClass({
   render: function() {
     return (
       <div className="%(name)sForm">
-        <Button label='Add %(label)s' onClick={this.handleToggle} />
+        <Button label='Add' onClick={this.beginAdd} />
+        <Button label='Edit' onClick={this.beginEdit} />
+        <Button label='Delete' onClick={this.beginDelete} />
         <Dialog
           actions={this.state.actions}
           active={this.state.editorActive}
-          onEscKeyDown={this.handleToggle}
-          onOverlayClick={this.handleToggle}
-          title='Add %(label)s'
+          onEscKeyDown={this.handleCancel}
+          onOverlayClick={this.handleCancel}
+          title=""
         >
+          <h1>{this.state.editorMode} %(label)s</h1>
           <form>
               """ %  dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
 
