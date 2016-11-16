@@ -364,8 +364,8 @@ var %(name)sTable = React.createClass({
   },
   render: function() {
     var rows = [];
-    for(var i = 0;i < this.props.length;i++) {
-      var row = new %(name)s(this.props[i]);
+    for(var i = 0;i < this.props.data.length;i++) {
+      var row = new %(name)s(this.props.data[i]);
       rows.append(row.getTableRow());
     }
       return (
