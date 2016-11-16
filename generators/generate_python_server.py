@@ -122,5 +122,5 @@ def %(name)s_handler():
 print """
 
 if __name__ == '__main__':
-    app.run(host=hostIp,port=int(os.environ.get("PORT", 3000)), debug=True)
+    app.run(host=hostIp,port=portNumber, debug=True)
 """

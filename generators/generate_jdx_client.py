@@ -357,8 +357,8 @@ var %(name)sList = React.createClass({
 var %(name)sTable = React.createClass({
   getInitialState: function() {
     var data = [];
-    for(var i = 0;i < data.props.length;i++) {
-      var row = %(name)s(data.props[i]);
+    for(var i = 0;i < this.props.length;i++) {
+      var row = %(name)s(this.props[i]);
       data.append(row.getTableRow());
     }
     return {data: data, selected: []};
