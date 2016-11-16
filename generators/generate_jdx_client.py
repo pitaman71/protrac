@@ -364,7 +364,16 @@ var %(name)sTable = React.createClass({
   },
   render: function() {
     var rows = this.props.data.map(function(properties) {
-        var row = new %(name)s(properties);
+        var merged = {};
+        for(var propName in properties) {
+          merged[propName] = properties[propName];
+        }
+        for(var propName in this.props) {
+          if(propName.endsWith('Values')) {
+            merged[propName] = this.props[propName];
+          }
+        }
+        var row = new %(name)s(merged);
         return row.getTableRow();
     }.bind(this));
     return (
