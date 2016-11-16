@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Weekly Report = Teacher * Student * Learning Objective => Effort * Cooperation * Progress -->
+<!-- Weekly Report = Teacher * Student * Learning Unit => Effort * Cooperation * Progress -->
 <!-- Clueless vs. Working vs. Mastery -->
 
 <application name="ProgressTrackingApp">
@@ -8,8 +8,8 @@
         <browse type="Person"/>
         <browse type="Standard"/>
         <browse type="Subject"/>
-        <browse type="LearningObjective"/>
-        <browse type="WeeklyReport"/>
+        <browse type="LearningUnit"/>
+        <browse type="UnitReports"/>
     </view>
     <objType name="Organization">
         <labelItem><name/></labelItem>
@@ -17,11 +17,11 @@
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="description" type="StringComments"/>
     </objType>
-    <relType name="TeacherOf">
+    <relType name="Enrollment">
         <propertyType name="teacher" type="Person"/>
         <propertyType name="student" type="Person"/>
     </relType>
-    <relType name="ParentOf">
+    <relType name="ParentOrGuardianship">
         <propertyType name="parent" type="Person"/>
         <propertyType name="student" type="Person"/>
     </relType>
@@ -30,7 +30,7 @@
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="description" type="StringComments"/>
     </objType>
-    <objType name="MasteryCredit">
+    <objType name="MasteryRating">
         <labelItem><name/></labelItem>
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="description" type="StringComments"/>
@@ -40,7 +40,7 @@
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="description" type="StringComments"/>
     </objType>
-    <objType name="AccelerationValue">
+    <objType name="ProgressRating">
         <labelItem><name/></labelItem>
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="description" type="StringComments"/>
@@ -55,16 +55,15 @@
     <object type="CooperationCredit"><name>okay</name></object>
     <object type="CooperationCredit"><name>frowny</name></object>
     <object type="CooperationCredit"><name>uhoh</name></object>
-    <object type="MasteryCredit"><name>mastery</name></object>
-    <object type="MasteryCredit"><name>almost</name></object>
-    <object type="MasteryCredit"><name>partial</name></object>
-    <object type="MasteryCredit"><name>trying</name></object>
-    <object type="MasteryCredit"><name>discovering</name></object>
-    <object type="AccelerationValue"><name>longTermReview</name></object>
-    <object type="AccelerationValue"><name>selfDirected</name></object>
-    <object type="AccelerationValue"><name>aboveGradeLevel</name></object>
-    <object type="AccelerationValue"><name>atGradeLevel</name></object>
-    <object type="AccelerationValue"><name>belowGradeLevel</name></object>
+    <object type="MasteryRating"><name>UI1</name><description>Unconscious Incompetence</description></object>
+    <object type="MasteryRating"><name>CI2</name><description>Conscious Incompetence</description></object>
+    <object type="MasteryRating"><name>CC3</name><description>Conscious Competence</description></object>
+    <object type="MasteryRating"><name>UC4</name><description>Unconscious Competence</description></object>
+    <object type="ProgressRating"><name>longTermReview</name></object>
+    <object type="ProgressRating"><name>selfDirected</name></object>
+    <object type="ProgressRating"><name>aboveGradeLevel</name></object>
+    <object type="ProgressRating"><name>atGradeLevel</name></object>
+    <object type="ProgressRating"><name>belowGradeLevel</name></object>
     <objType name="Person">
         <labelItem><givenName/><surName/></labelItem>
         <labelList>People</labelList>
@@ -83,25 +82,25 @@
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="description" type="StringComments"/>
     </objType>
-    <objType name="LearningObjective">
+    <objType name="LearningUnit">
         <labelItem><name/></labelItem>
-        <labelList>Objectives</labelList>
+        <labelList>Units</labelList>
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="subject" type="Subject"/>
         <propertyType name="standard" type="Standard"/>
         <propertyType name="section" type="StringLabel"/>
         <propertyType name="description" type="StringComments"/>
     </objType>
-    <objType name="WeeklyReport">
+    <objType name="UnitReports">
         <labelItem><name/></labelItem>
         <labelList>Reports</labelList>
         <propertyType name="teacher" type="Person"/>
         <propertyType name="student" type="Person"/>
         <propertyType name="week" type="Date"/>
-        <propertyType name="objective" type="LearningObjective"/>
-        <propertyType name="acceleration" type="AccelerationValue"/>
+        <propertyType name="objective" type="LearningUnit"/>
         <propertyType name="effort" type="EffortCredit"/>
-        <propertyType name="progress" type="MasteryCredit"/>
         <propertyType name="cooperation" type="CooperationCredit"/>
+        <propertyType name="mastery" type="MasteryRating"/>
+        <propertyType name="progress" type="ProgressRating"/>
     </objType>
 </application>
