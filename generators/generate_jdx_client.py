@@ -233,11 +233,11 @@ var %(name)s = React.createClass({
             if len(userDefs) > 0:
                 userDef = userDefs[len(userDefs)-1]
                 print """
-        result.append(this.getLabel_%(name)s());
+        result.push(this.getLabel_%(name)s());
                 """ % propertyType.attrib
             else:
                 print """
-        result.append(this.props.%(name)s);
+        result.push(this.props.%(name)s);
                 """ % propertyType.attrib
         print """
         return result;
