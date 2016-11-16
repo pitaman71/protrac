@@ -8,8 +8,13 @@ print """
 import json
 import os
 import time
+import re
 from flask import Flask, Response, request
 
+f = os.popen('ifconfig eth0')
+tmp=f.read()
+hostIp = re.search('inet (\S+)',tmp).expand(r'\\1')
+portNumber=int(os.environ.get("PORT", 3000))
 app = Flask(__name__, static_url_path='', static_folder='public')
 app.add_url_rule('/', 'root', lambda: app.send_static_file('index.html'))
 """
@@ -113,5 +118,5 @@ def %(name)s_handler():
 print """
 
 if __name__ == '__main__':
-    app.run(port=int(os.environ.get("PORT", 3000)), debug=True)
+    app.run(host=hostIp,port=int(os.environ.get("PORT", 3000)), debug=True)
 """
