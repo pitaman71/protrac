@@ -222,7 +222,7 @@ var %(name)s = React.createClass({
   },                  """ % propertyType.attrib
 
         print """
-  getArray: function() {
+  getTableRow: function() {
         var result = [];
         """ 
         for propertyType in objType.findall('propertyType'):
@@ -359,7 +359,7 @@ var %(name)sTable = React.createClass({
     var data = [];
     for(var i = 0;i < data.props.length;i++) {
       var row = %(name)s(data.props[i]);
-      data.append(row);
+      data.append(row.getTableRow());
     }
     return {data: data, selected: []};
   },
