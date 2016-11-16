@@ -13,8 +13,12 @@ from flask import Flask, Response, request
 
 f = os.popen('ifconfig eth0')
 tmp=f.read()
-hostIp = re.search('inet (\S+)',tmp).expand(r'\\1')
+tmp=re.search('inet (\S+)',tmp)
+hostIp = '0.0.0.0'
 portNumber=int(os.environ.get("PORT", 3000))
+if tmp != None:
+    hostIp = tmp.expand(r'\\1')
+    portNumber=80
 app = Flask(__name__, static_url_path='', static_folder='public')
 app.add_url_rule('/', 'root', lambda: app.send_static_file('index.html'))
 """
