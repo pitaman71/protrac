@@ -371,7 +371,7 @@ var %(name)sTable = React.createClass({
       return (
         <Table model={%(name)sModel} onSelect={this.handleSelect} source={rows} selected={this.state.selected} selectable/>
     );
-  }
+  }.bind(this)
 });
         """ % objType.attrib
 
