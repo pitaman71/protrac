@@ -135,6 +135,7 @@ for arg in sys.argv:
         print "ERROR: XML root element is <%s> but expected <application>" % root.tag
         sys.exit(2);
 
+    # app representative class
     print """
 class %(name)s extends React.Component {
     """ % root.attrib
@@ -198,6 +199,7 @@ class %(name)s extends React.Component {
 }
     """
 
+    # objType representative class
     for objType in root.findall('objType'):
         print """
 var %(name)s = React.createClass({
@@ -218,6 +220,29 @@ var %(name)s = React.createClass({
       return '';
     }
   },                  """ % propertyType.attrib
+
+        print """
+  getArray: function() {
+        var result = [];
+        """ 
+        for propertyType in objType.findall('propertyType'):
+            propTypeName = ""
+            if 'type' in propertyType.attrib: 
+                propTypeName = propertyType.get('type')
+            userDefs = root.findall('objType[@name=\'%s\']' % propTypeName)
+            if len(userDefs) > 0:
+                userDef = userDefs[len(userDefs)-1]
+                print """
+        result.append(getLabel_%(name)s());
+                """ % propertyType.attrib
+            else:
+                print """
+        result.append(this.props.%(name)s);
+                """ % propertyType.attrib
+        print """
+        return result;
+  },
+        """
         print """
   getInitialState: function() {
       return {"""
@@ -273,6 +298,7 @@ var %(name)s = React.createClass({
 });
         """ % objType.attrib
 
+    # objType Table Model
     for objType in root.findall('objType'):
         print 'const %(name)sModel = {\n' % objType.attrib
         count = 0
@@ -287,6 +313,7 @@ var %(name)s = React.createClass({
             count += 1
         print '};\n'
 
+    # objType List class
     for objType in root.findall('objType'):
         print """
 var %(name)sList = React.createClass({
@@ -324,11 +351,17 @@ var %(name)sList = React.createClass({
 });
         """ % dict(name=objType.get('name'),listSummary=NodeWrapper(root,objType).getListSummary())
 
+    # objType Table class
     for objType in root.findall('objType'):
         print """
 var %(name)sTable = React.createClass({
   getInitialState: function() {
-    return {selected: []};
+    var data = [];
+    for(var i = 0;i < data.props.length;i++) {
+      var row = %(name)s(data.props[i]);
+      data.append(row);
+    }
+    return {data: data, selected: []};
   },
   handleSelect: function(selected) {
     this.setState({selected: selected});
@@ -336,7 +369,7 @@ var %(name)sTable = React.createClass({
   },
   render: function() {
       return (
-        <Table model={%(name)sModel} onSelect={this.handleSelect} source={this.props.data} selected={this.state.selected} selectable/>
+        <Table model={%(name)sModel} onSelect={this.handleSelect} source={this.state.data} selected={this.state.selected} selectable/>
     );
   }
 });
@@ -495,6 +528,7 @@ var %(name)sBrowser = React.createClass({
 
         """ % objType.attrib
 
+        # objType Form/inspector class
         print """
 var %(name)sForm = React.createClass({
         """ % objType.attrib
