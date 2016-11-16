@@ -363,15 +363,14 @@ var %(name)sTable = React.createClass({
     this.props.handleSelect(selected);
   },
   render: function() {
-    var rows = [];
-    for(var i = 0;i < this.props.data.length;i++) {
-      var row = new %(name)s(this.props.data[i]);
-      rows.append(row.getTableRow());
-    }
-      return (
+    var rows = this.props.data.map(function(properties) {
+        var row = new %(name)s(properties);
+        return row.getTableRow();
+    }.bind(this));
+    return (
         <Table model={%(name)sModel} onSelect={this.handleSelect} source={rows} selected={this.state.selected} selectable/>
     );
-  }.bind(this)
+  }
 });
         """ % objType.attrib
 
