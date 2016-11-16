@@ -1,5 +1,4 @@
 .editorconfig/
-autosrc/
 public/node_modules/
 public/dist/
 server.py
