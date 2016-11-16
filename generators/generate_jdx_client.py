@@ -356,20 +356,20 @@ var %(name)sList = React.createClass({
         print """
 var %(name)sTable = React.createClass({
   getInitialState: function() {
-    var data = [];
-    for(var i = 0;i < this.props.length;i++) {
-      var row = new %(name)s(this.props[i]);
-      data.append(row.getTableRow());
-    }
-    return {data: data, selected: []};
+    return {selected: []};
   },
   handleSelect: function(selected) {
     this.setState({selected: selected});
     this.props.handleSelect(selected);
   },
   render: function() {
+    var rows = [];
+    for(var i = 0;i < this.props.length;i++) {
+      var row = new %(name)s(this.props[i]);
+      rows.append(row.getTableRow());
+    }
       return (
-        <Table model={%(name)sModel} onSelect={this.handleSelect} source={this.state.data} selected={this.state.selected} selectable/>
+        <Table model={%(name)sModel} onSelect={this.handleSelect} source={rows} selected={this.state.selected} selectable/>
     );
   }
 });
