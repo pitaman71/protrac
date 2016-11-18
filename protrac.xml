@@ -15,7 +15,7 @@
         <labelItem><name/></labelItem>
         <labelList>Organizations</labelList>
         <propertyType name="name" type="StringLabel"/>
-        <propertyType name="description" type="StringComments"/>
+        <propertyType name="description" type="StringComment"/>
     </objType>
     <relType name="Enrollment">
         <propertyType name="teacher" type="Person"/>
@@ -28,22 +28,22 @@
     <objType name="EffortCredit">
         <labelItem><name/></labelItem>
         <propertyType name="name" type="StringLabel"/>
-        <propertyType name="description" type="StringComments"/>
+        <propertyType name="description" type="StringComment"/>
     </objType>
     <objType name="MasteryRating">
         <labelItem><name/></labelItem>
         <propertyType name="name" type="StringLabel"/>
-        <propertyType name="description" type="StringComments"/>
+        <propertyType name="description" type="StringComment"/>
     </objType>
     <objType name="CooperationCredit">
         <labelItem><name/></labelItem>
         <propertyType name="name" type="StringLabel"/>
-        <propertyType name="description" type="StringComments"/>
+        <propertyType name="description" type="StringComment"/>
     </objType>
     <objType name="ProgressRating">
         <labelItem><name/></labelItem>
         <propertyType name="name" type="StringLabel"/>
-        <propertyType name="description" type="StringComments"/>
+        <propertyType name="description" type="StringComment"/>
     </objType>
     <object type="EffortCredit"><name>wow!</name></object>
     <object type="EffortCredit"><name>smiley</name></object>
@@ -74,13 +74,13 @@
         <labelItem><name/></labelItem>
         <labelList>Standards</labelList>
         <propertyType name="name" type="StringLabel"/>
-        <propertyType name="description" type="StringComments"/>
+        <propertyType name="description" type="StringComment"/>
     </objType>
     <objType name="Subject">
         <labelItem><name/></labelItem>
         <labelList>Subjects</labelList>
         <propertyType name="name" type="StringLabel"/>
-        <propertyType name="description" type="StringComments"/>
+        <propertyType name="description" type="StringComment"/>
     </objType>
     <objType name="LearningUnit">
         <labelItem><name/></labelItem>
@@ -89,7 +89,7 @@
         <propertyType name="subject" type="Subject"/>
         <propertyType name="standard" type="Standard"/>
         <propertyType name="section" type="StringLabel"/>
-        <propertyType name="description" type="StringComments"/>
+        <propertyType name="description" type="StringComment"/>
     </objType>
     <objType name="UnitReports">
         <labelItem><name/></labelItem>
