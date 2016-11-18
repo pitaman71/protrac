@@ -65,7 +65,7 @@
     <object type="ProgressRating"><name>atGradeLevel</name></object>
     <object type="ProgressRating"><name>belowGradeLevel</name></object>
     <objType name="Person">
-        <labelItem><givenName/><surName/></labelItem>
+        <labelItem><givenName/> <surName/></labelItem>
         <labelList>People</labelList>
         <propertyType name="surName" type="StringLabel"/>
         <propertyType name="givenName" type="StringLabel"/>
