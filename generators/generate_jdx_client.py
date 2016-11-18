@@ -223,7 +223,7 @@ var %(name)s = React.createClass({
 
         print """
   getTableRow: function() {
-        var result = [];
+        var result = {};
         """ 
         for propertyType in objType.findall('propertyType'):
             propTypeName = ""
@@ -233,11 +233,11 @@ var %(name)s = React.createClass({
             if len(userDefs) > 0:
                 userDef = userDefs[len(userDefs)-1]
                 print """
-        result.push(this.getLabel_%(name)s());
+        result['%(name)s'] = this.getLabel_%(name)s();
                 """ % propertyType.attrib
             else:
                 print """
-        result.push(this.props.%(name)s);
+        result['%(name)s'] = this.props.%(name)s;
                 """ % propertyType.attrib
         print """
         return result;
