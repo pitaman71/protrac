@@ -1,8 +1,9 @@
 .editorconfig/
 public/node_modules/
 public/dist/
-server.py
+server*.py
 autosrc/client.js
 autosrc/node_modules/
+jsondb
 *.json
 *.out

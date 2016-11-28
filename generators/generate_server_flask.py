@@ -4,6 +4,7 @@ import copy
 import xml.etree.ElementTree as ElementTree
 import sys
 
+dbroot = 'jsondb/'
 print """
 import json
 import os
@@ -40,7 +41,7 @@ def %(name)s_handler():
     items_before = []
     items_after = []
     try:
-        f = open('%(name)s.json', 'r')
+        f = open('%(dbroot)s%(name)s.json', 'r')
         items_before = json.loads(f.read())
     except:
         print "JSON database file %(name)s does not exist yet, will be created on the first POST"
@@ -74,7 +75,7 @@ def %(name)s_handler():
         items_after = items_before
 
     if save:
-        with open('%(name)s.json', 'w') as f:
+        with open('%(dbroot)s%(name)s.json', 'w') as f:
             f.write(json.dumps(items_after, indent=4, separators=(',', ': ')))
 
     return Response(
@@ -85,7 +86,7 @@ def %(name)s_handler():
             'Access-Control-Allow-Origin': '*'
         }
     )
-        """ % objType.attrib
+        """ % dict(name=objType.get('name'),dbroot=dbroot)
 
     relTypes = root.findall('relType')
     for relType in relTypes :
@@ -94,7 +95,7 @@ def %(name)s_handler():
 def %(name)s_handler():
     items = []
     try:
-        f = open('%(name)s.json', 'r')
+        f = open('%(dbroot)s%(name)s.json', 'r')
         items = json.loads(f.read())
     except:
         print "JSON database file %(name)s does not exist yet, will be created on the first POST"
@@ -104,7 +105,7 @@ def %(name)s_handler():
         new_item['id'] = int(time.time() * 1000)
         items.append(new_item)
 
-        with open('%(name)s.json', 'w') as f:
+        with open('%(dbroot)s%(name)s.json', 'w') as f:
             f.write(json.dumps(items, indent=4, separators=(',', ': ')))
 
     return Response(
@@ -115,7 +116,7 @@ def %(name)s_handler():
             'Access-Control-Allow-Origin': '*'
         }
     )
-        """ % relType.attrib
+        """ %  dict(name=relType.get('name'),dbroot=dbroot)
 
   argi = argi + 1
 

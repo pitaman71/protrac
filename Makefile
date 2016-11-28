@@ -3,10 +3,8 @@ default : autosrc initial_dbfiles.out server_flask.py dist/bundle.js
 autosrc :
 	mkdir -p $@
 
-reset_dbfiles : initial_dbfiles.out
-	for file in *_initial.json; do cp $$file $${file%_initial.json}.json; done
-
 initial_dbfiles.out : generators/generate_initial_jsondb.py protrac.xml
+	mkdir -p jsondb
 	$^ > $@.in-progress
 	mv $@.in-progress $@	
 

@@ -6,6 +6,7 @@ import sys
 import json
 
 argi = 0
+dbroot = 'jsondb/'
 for arg in sys.argv:
   if(argi > 0):
     print "// Debug: parsing "+arg+"\n"
@@ -18,7 +19,7 @@ for arg in sys.argv:
     for objType in root.findall('objType'):
         typeName = objType.get('name')
         objects = []
-        fp = open(typeName+'_initial.json','w')
+        fp = open(dbroot+typeName+'.json','w')
         if fp:
             print "Generating initial database for %s" % typeName
             id = 1
