@@ -123,6 +123,7 @@ const Table = toolbox.Table;
 const Dropdown = toolbox.Dropdown;
 const Button = toolbox.Button;
 const Dialog = toolbox.Dialog;
+
 """
 
 argi = 0
@@ -137,7 +138,7 @@ for arg in sys.argv:
 
     # app representative class
     print """
-class %(name)s extends React.Component {
+class %(name)sApp extends React.Component {
     """ % root.attrib
 
     print """
@@ -197,6 +198,30 @@ class %(name)s extends React.Component {
     );
   }
 }
+    """
+
+    print """
+      const renderItem = function(item) {
+    """
+
+    typeIndex = 0
+    for objType in root.findall('objType'):
+        if(typeIndex == 0):
+          print """if(item.editorType == '%(name)s') {""" % objType.attrib
+        else:
+          print """} else if(item.editorType == '%(name)s') {""" % objType.attrib
+        print """
+          var initialValues = {};
+          if('initialValues' in item) {
+            initialValues = item.initialValues;
+          }
+          return <%(name)sInspector editorActive="true" initialValues={initialValues} editorMode={item.editorMode} onSubmit={this.handleSubmit} onCancel={this.handleCancel}/>
+        """ % objType.attrib
+        typeIndex += 1
+    print """}"""
+
+    print """
+      };
     """
 
     # objType representative class
@@ -377,7 +402,7 @@ var %(name)sTable = React.createClass({
         return row.getTableRow();
     }.bind(this));
     return (
-        <Table model={%(name)sModel} onSelect={this.handleSelect} source={rows} selected={this.state.selected} selectable/>
+        <Table selectable multiSelectable="" model={%(name)sModel} onSelect={this.handleSelect} source={rows} selected={this.state.selected}/>
     );
   }
 });
@@ -519,7 +544,7 @@ var %(name)sBrowser = React.createClass({
                 userDef = userDefs[len(userDefs)-1]
                 print """ %(name)sValues={this.state.%(name)sValues}""" % propertyType.attrib
         print """/>
-          <%(name)sForm hasSelected={this.hasSelected} getSelected={this.getSelected} onSubmit={this.handleSubmit} onDelete={this.handleDelete} """ % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
+          <%(name)sEditor hasSelected={this.hasSelected} getSelected={this.getSelected} onSubmit={this.handleSubmit} """ % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
         for propertyType in objType.findall('propertyType'):
             propTypeName = ""
             if 'type' in propertyType.attrib:
@@ -536,9 +561,86 @@ var %(name)sBrowser = React.createClass({
 
         """ % objType.attrib
 
-        # objType Form/inspector class
+        # objType Inspector class
         print """
-var %(name)sForm = React.createClass({
+var %(name)sInspector = React.createClass({
+            """ % objType.attrib
+
+        for propertyType in objType.findall('propertyType'):
+            print """      
+  handle%(name)sChange: function(value) {
+    var newEditorValues = this.state.editorValues;
+    newEditorValues.%(name)s = value;
+    this.setState({editorValues: newEditorValues});
+  },""" % propertyType.attrib
+
+        print """
+  getInitialState: function() {
+    var initialValues = {
+        """
+        propCount = 0
+        for propertyType in objType.findall('propertyType'):
+          if propCount > 0: 
+            print ""","""
+          print """%(name)s: ''""" % propertyType.attrib
+          propCount += 1
+        print """
+    };
+    if('initialValues' in this.props) {
+      initialValues = this.props.initialValues;
+    }
+    return { actions: [
+    { label: "Cancel", onClick: this.handleCancel },
+    { label: this.props.editorMode+" %(label)s", onClick: this.handleSubmit }
+                      ], 
+             editorActive: true, editorValues: initialValues """ % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
+
+        print """};
+  },
+  handleSubmit: function() {
+    this.props.onSubmit(this.state.editorValues,this.props.editorMode);
+    this.setState({editorActive: false});
+  },
+  handleCancel: function() {
+    this.props.onCancel(this.state.editorValues,this.props.editorMode);
+    this.setState({editorActive: false});
+  },""" % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
+
+        print """
+  pushInspector: function(inspector) {
+    this.props.onPushInspector(inspector);    
+  },
+  popInspector: function(inspector) {
+    this.props.onPopInspector(inspector);
+  },
+  render: function() {
+    return (
+        <Dialog
+          actions={this.state.actions}
+          active={this.state.editorActive}
+          onEscKeyDown={this.handleCancel}
+          onOverlayClick={this.handleCancel}
+          title=""
+        >
+          <h1>{this.props.editorMode} %(label)s</h1>
+          <form>
+          """ % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
+        for propertyType in objType.findall('propertyType'):
+            propertyWrapper = PropertyWrapper(root,propertyType)
+            propertyWrapper.emitFormElement()
+        print """
+          </form>
+        </Dialog>
+    );
+  }
+});
+        """ % objType.attrib
+
+        # objType Editor class
+        print """
+var %(name)sEditor = React.createClass({
+  getInitialState: function() {
+    return { inspectorStack:[],
         """ % objType.attrib
 
         for propertyType in objType.findall('propertyType'):
@@ -549,97 +651,83 @@ var %(name)sForm = React.createClass({
             if len(userDefs) > 0:
                 userDef = userDefs[len(userDefs)-1]
                 print """        %(name)sValues: [],""" % propertyType.attrib
-        print """
-  getInitialState: function() {
-    return { actions: [
-    { label: "Cancel", onClick: this.handleCancel },
-    { label: "?", onClick: this.handleSubmit }
-                      ], 
-             editorActive: false, editorValues: {""" % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
-        propCount = 0
-        for propertyType in objType.findall('propertyType'):
-            if(propCount != 0):
-              print """, """
-            print """%(name)s: ''""" % propertyType.attrib
-            propCount += 1
 
-        print """}};
-  },
-  getActionLabel: function() {
-    return this.state.editorMode;
-  },
-  setEditorMode: function(mode) {
-    var newActions = this.state.actions;
-    newActions[1].label = mode+" %(label)s";
-    this.setState({editorActive: true, editorMode: mode, actions: newActions});
-  },
-  handleCancel: function() {
-    this.setState({editorActive: false, editorMode: "OFF"});
+        print """
+      };
   },
   beginAdd: function() {
-    this.setEditorMode("ADD");
+    var inspector = { editorType: '%(name)s', editorMode: "ADD",onPushInspector: this.pushInspector, onPopInspector: this.popInspector};
+    this.pushInspector(inspector);
   },
   beginEdit: function() {
     if(!this.props.hasSelected()) {
       alert("No %(label)s is selected");
     } else {
-      this.setState({editorValues: this.props.getSelected()});
-      this.setEditorMode("EDIT");
+      var initialValues = this.props.getSelected();
+      var inspector = { editorType: '%(name)s', editorMode: "EDIT", initialValues: initialValues,onPushInspector: this.pushInspector, onPopInspector: this.popInspector};
+      this.pushInspector(inspector);
     }
   },
   beginDelete: function() {
     if(!this.props.hasSelected()) {
       alert("No %(label)s is selected");
     } else {
-      this.setState({editorValues: this.props.getSelected()});
-      this.setEditorMode("DELETE");
+      var inspector = { editorType: '%(name)s', editorMode: "DELETE", initialValues: this.props.getSelected(),onPushInspector: this.pushInspector, onPopInspector: this.popInspector};
+      this.pushInspector(inspector);
     }
   },
-  handleSubmit: function() {
-    this.props.onSubmit(this.state.editorValues,this.state.editorMode);
-    this.setState({editorActive: false});
-  },
-              """ % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
+  pushInspector: function(inspector) {
+      """  % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
+
         for propertyType in objType.findall('propertyType'):
-            print """      
-  handle%(name)sChange: function(value) {
-    var newEditorValues = this.state.editorValues;
-    newEditorValues.%(name)s = value;
-    this.setState({editorValues: newEditorValues});
-  },""" % propertyType.attrib
+            propTypeName = ""
+            if 'type' in propertyType.attrib:
+                propTypeName = propertyType.get('type')
+            userDefs = root.findall('objType[@name=\'%s\']' % propTypeName)
+            if len(userDefs) > 0:
+                userDef = userDefs[len(userDefs)-1]
+                print """    inspector['%(name)sValues']=this.props.%(name)sValues;""" % propertyType.attrib
+
+        print """
+    this.setState({inspectorStack: this.state.inspectorStack.concat([inspector]) });
+  },
+  popInspector: function() {
+    this.setState({inspectorStack: this.state.inspectorStack.slice(0,-1) });
+  },
+  handleSubmit: function(editorValues,editorMode) {
+    this.props.onSubmit(editorValues,editorMode);
+    this.popInspector();
+  },
+  handleCancel: function(editorValues,editorMode) {
+    this.popInspector();
+  },
+
+              """ % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
+
         print """
   render: function() {
+    var nodes = [];
+
+    if(this.state.inspectorStack.length > 0) {
+      var items = [this.state.inspectorStack[this.state.inspectorStack.length-1]];
+      nodes = items.map(renderItem,this);
+    }
+
     return (
-      <div className="%(name)sForm">
+      <div className="%(name)sEditor">
         <Button label='Add' onClick={this.beginAdd} />
         <Button label='Edit' onClick={this.beginEdit} />
         <Button label='Delete' onClick={this.beginDelete} />
-        <Dialog
-          actions={this.state.actions}
-          active={this.state.editorActive}
-          onEscKeyDown={this.handleCancel}
-          onOverlayClick={this.handleCancel}
-          title=""
-        >
-          <h1>{this.state.editorMode} %(label)s</h1>
-          <form>
-              """ %  dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
-
-        for propertyType in objType.findall('propertyType'):
-            propertyWrapper = PropertyWrapper(root,propertyType)
-            propertyWrapper.emitFormElement()
-        print """
-          </form>
-        </Dialog>
+        {nodes[0]}
       </div>
     );
   }
 });
-        """
+              """ %  dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
 
     print """
 ReactDOM.render(
-  <%(name)s/>,
+  <%(name)sApp/>,
   document.getElementById('content')
 );
     """ % root.attrib

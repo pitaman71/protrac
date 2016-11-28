@@ -55,15 +55,15 @@
     <object type="CooperationCredit"><name>okay</name></object>
     <object type="CooperationCredit"><name>frowny</name></object>
     <object type="CooperationCredit"><name>uhoh</name></object>
-    <object type="MasteryRating"><name>UI1</name><description>Unconscious Incompetence</description></object>
-    <object type="MasteryRating"><name>CI2</name><description>Conscious Incompetence</description></object>
-    <object type="MasteryRating"><name>CC3</name><description>Conscious Competence</description></object>
-    <object type="MasteryRating"><name>UC4</name><description>Unconscious Competence</description></object>
+    <object type="MasteryRating"><name>UI1</name><description>Unconscious Incompetence</description><link url="http://analogyofteachinglevine.weebly.com/chapter-4.html"/></object>
+    <object type="MasteryRating"><name>CI2</name><description>Conscious Incompetence</description><link url="http://analogyofteachinglevine.weebly.com/chapter-4.html"/></object>
+    <object type="MasteryRating"><name>CC3</name><description>Conscious Competence</description><link url="http://analogyofteachinglevine.weebly.com/chapter-4.html"/></object>
+    <object type="MasteryRating"><name>UC4</name><description>Unconscious Competence</description><link url="http://analogyofteachinglevine.weebly.com/chapter-4.html"/></object>
     <object type="ProgressRating"><name>longTermReview</name></object>
-    <object type="ProgressRating"><name>selfDirected</name></object>
-    <object type="ProgressRating"><name>aboveGradeLevel</name></object>
-    <object type="ProgressRating"><name>atGradeLevel</name></object>
     <object type="ProgressRating"><name>belowGradeLevel</name></object>
+    <object type="ProgressRating"><name>atGradeLevel</name></object>
+    <object type="ProgressRating"><name>aboveGradeLevel</name></object>
+    <object type="ProgressRating"><name>selfDirected</name></object>
     <objType name="Person">
         <labelItem><givenName/> <surName/></labelItem>
         <labelList>People</labelList>
