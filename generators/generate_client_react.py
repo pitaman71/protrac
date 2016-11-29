@@ -215,8 +215,17 @@ class %(name)sApp extends React.Component {
           if('initialValues' in item) {
             initialValues = item.initialValues;
           }
-          return <%(name)sInspector editorActive="true" initialValues={initialValues} editorMode={item.editorMode} onSubmit={this.handleSubmit} onCancel={this.handleCancel}/>
-        """ % objType.attrib
+          return <%(name)sInspector editorActive="true" initialValues={initialValues}""" % objType.attrib
+        for propertyType in objType.findall('propertyType'):
+            propTypeName = ""
+            if 'type' in propertyType.attrib: 
+                propTypeName = propertyType.get('type')
+            userDefs = root.findall('objType[@name=\'%s\']' % propTypeName)
+            if len(userDefs) > 0:
+                userDef = userDefs[len(userDefs)-1]
+                print """ %(name)sValues={this.props.%(name)sValues}""" % propertyType.attrib
+
+        print """ editorMode={item.editorMode} onPushInspector={this.pushInspector} onPopInspector={this.popInspector} onUpdate={this.handleUpdate} onCancel={this.handleCancel}/>""" % objType.attrib
         typeIndex += 1
     print """}"""
 
@@ -430,23 +439,26 @@ var %(name)sBrowser = React.createClass({
                 print """
       items.push(item);
     }
+    items.push({ value: "+", label: 'NEW %(type)s'});
     this.setState({%(name)sValues: items});
   },
                 """ % propertyType.attrib
         print """
   loadFromServer: function() {
     $.ajax({
-      url: this.props.url,
+      url: 'api/%(name)s',
       dataType: 'json',
       cache: false,
       success: function(data) {
-        this.setState({data: data});
+        if(this.isMounted()) {
+          this.setState({data: data});
+        }
       }.bind(this),
       error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
+        console.error('api/%(name)s', status, err.toString());
       }.bind(this)
     });
-                """
+                """ % objType.attrib
         for propertyType in objType.findall('propertyType'):
             propTypeName = ""
             if 'type' in propertyType.attrib:
@@ -475,36 +487,9 @@ var %(name)sBrowser = React.createClass({
                 """ % propertyType.attrib
         print """
   },
-  handleSubmit: function(editorState,editorMode) {
-    $.ajax({
-      url: this.props.url,
-      dataType: 'json',
-      type: editorMode,
-      data: editorState,
-      success: function(data) {
-        this.setState({data: data});
-      }.bind(this),
-      error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
-      }.bind(this)
-    });
+  handleUpdate: function(typeName,data) {
+      this.setState({data: data});
   },
-
-  handleDelete: function(editorState) {
-    $.ajax({
-      url: this.props.url,
-      dataType: 'json',
-      type: 'DELETE',
-      data: editorState,
-      success: function(data) {
-        this.setState({data: data});
-      }.bind(this),
-      error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
-      }.bind(this)
-    });
-  },
-
   getInitialState: function() {
     return {selected: [], data: []""" % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
 
@@ -544,7 +529,7 @@ var %(name)sBrowser = React.createClass({
                 userDef = userDefs[len(userDefs)-1]
                 print """ %(name)sValues={this.state.%(name)sValues}""" % propertyType.attrib
         print """/>
-          <%(name)sEditor hasSelected={this.hasSelected} getSelected={this.getSelected} onSubmit={this.handleSubmit} """ % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
+          <%(name)sEditor hasSelected={this.hasSelected} getSelected={this.getSelected} onUpdate={this.handleUpdate} """ % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
         for propertyType in objType.findall('propertyType'):
             propTypeName = ""
             if 'type' in propertyType.attrib:
@@ -572,6 +557,10 @@ var %(name)sInspector = React.createClass({
     var newEditorValues = this.state.editorValues;
     newEditorValues.%(name)s = value;
     this.setState({editorValues: newEditorValues});
+    if(value == "+") {
+      var inspector = { editorType: '%(type)s', editorMode: "ADD", editorField: "%(name)s", onPushInspector: this.pushInspector, onPopInspector: this.popInspector};
+      this.pushInspector(inspector);      
+    }
   },""" % propertyType.attrib
 
         print """
@@ -598,11 +587,22 @@ var %(name)sInspector = React.createClass({
         print """};
   },
   handleSubmit: function() {
-    this.props.onSubmit(this.state.editorValues,this.props.editorMode);
+    $.ajax({
+      url: 'api/%(name)s',
+      dataType: 'json',
+      type: this.props.editorMode,
+      data: this.state.editorValues,
+      success: function(data) {
+        this.props.onUpdate("%(name)s",data);
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error('api/%(name)s', status, err.toString());
+      }.bind(this)
+    });
     this.setState({editorActive: false});
   },
   handleCancel: function() {
-    this.props.onCancel(this.state.editorValues,this.props.editorMode);
+    this.props.onCancel(this.state.editorValues,this.props.editorMode,this.props.editorField);
     this.setState({editorActive: false});
   },""" % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
 
@@ -656,7 +656,7 @@ var %(name)sEditor = React.createClass({
       };
   },
   beginAdd: function() {
-    var inspector = { editorType: '%(name)s', editorMode: "ADD",onPushInspector: this.pushInspector, onPopInspector: this.popInspector};
+    var inspector = { editorType: '%(name)s', editorMode: "ADD", editorField: "", onPushInspector: this.pushInspector, onPopInspector: this.popInspector};
     this.pushInspector(inspector);
   },
   beginEdit: function() {
@@ -664,7 +664,7 @@ var %(name)sEditor = React.createClass({
       alert("No %(label)s is selected");
     } else {
       var initialValues = this.props.getSelected();
-      var inspector = { editorType: '%(name)s', editorMode: "EDIT", initialValues: initialValues,onPushInspector: this.pushInspector, onPopInspector: this.popInspector};
+      var inspector = { editorType: '%(name)s', editorMode: "EDIT", editorField: "", initialValues: initialValues,onPushInspector: this.pushInspector, onPopInspector: this.popInspector};
       this.pushInspector(inspector);
     }
   },
@@ -672,7 +672,7 @@ var %(name)sEditor = React.createClass({
     if(!this.props.hasSelected()) {
       alert("No %(label)s is selected");
     } else {
-      var inspector = { editorType: '%(name)s', editorMode: "DELETE", initialValues: this.props.getSelected(),onPushInspector: this.pushInspector, onPopInspector: this.popInspector};
+      var inspector = { editorType: '%(name)s', editorMode: "DELETE", editorField: "", initialValues: this.props.getSelected(),onPushInspector: this.pushInspector, onPopInspector: this.popInspector};
       this.pushInspector(inspector);
     }
   },
@@ -694,8 +694,8 @@ var %(name)sEditor = React.createClass({
   popInspector: function() {
     this.setState({inspectorStack: this.state.inspectorStack.slice(0,-1) });
   },
-  handleSubmit: function(editorValues,editorMode) {
-    this.props.onSubmit(editorValues,editorMode);
+  handleUpdate: function(typeName,data) {
+    this.props.onUpdate(typeName,data);
     this.popInspector();
   },
   handleCancel: function(editorValues,editorMode) {
