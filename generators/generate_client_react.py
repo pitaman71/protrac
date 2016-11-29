@@ -95,7 +95,7 @@ class BrowseWrapper(NodeWrapper):
   def emitTab(self):
     print """
           <Tab label="%(label)s">
-            <%(type)sBrowser url="/api/%(type)s" pollInterval={2000} />
+            <%(type)sBrowser url="/api/%(type)s" pollInterval={5000} />
           </Tab>
           """ % dict(label=self.getLabelList(),type=self.defNode.get('type'))
 
@@ -116,6 +116,8 @@ print """
 const React = require('react');
 const ReactDOM = require('react-dom');
 const toolbox = require('react-toolbox');
+const Redux = require('redux');
+
 const Input = toolbox.Input;
 const Tabs = toolbox.Tabs;
 const Tab = toolbox.Tab;
@@ -135,6 +137,39 @@ for arg in sys.argv:
     if root.tag != 'application':
         print "ERROR: XML root element is <%s> but expected <application>" % root.tag
         sys.exit(2);
+
+    # create Redux store
+    for objType in root.findall('objType'):
+      print """
+        const initial%(name)s = { items: [] };
+        var store%(name)s = Redux.createStore(reduce%(name)s,initial%(name)s);
+      """ % objType.attrib
+
+    # create Redux actions
+    for objType in root.findall('objType'):
+      print """
+        function async%(name)s(items) {
+          return {
+            type: 'ASYNC',
+            items: items
+          }
+        }
+      """ % objType.attrib
+
+    # create Redux reducers
+    for objType in root.findall('objType'):
+      print """
+        function reduce%(name)s(state, action) {
+          switch (action.type) {
+            case 'ASYNC': 
+              var newState = Object.assign({}, state);
+              newState.items = action.items;
+              return newState;
+            default:
+              return state;
+          }
+        };
+      """ % objType.attrib
 
     # app representative class
     print """
@@ -176,10 +211,33 @@ class %(name)sApp extends React.Component {
     inverseIndex: 1
     });
     console.log('Special one activated');
-  }  
+  };
+
+  componentDidMount() {
+    this.loadFromServer();
+    setInterval(this.loadFromServer, this.props.pollInterval);
+  };
+
+  loadFromServer() {
     """
+    for objType in root.findall('objType'):
+      print """
+    $.ajax({
+      url: 'api/%(name)s',
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        // alert('Async state update receieved for %(name)s');
+        store%(name)s.dispatch(async%(name)s(data));
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error('api/%(name)s', status, err.toString());
+      }.bind(this)
+    });
+      """ % objType.attrib
 
     print """
+  };
   render() {
     return (
       <div>
@@ -211,11 +269,11 @@ class %(name)sApp extends React.Component {
         else:
           print """} else if(item.editorType == '%(name)s') {""" % objType.attrib
         print """
-          var initialValues = {};
-          if('initialValues' in item) {
-            initialValues = item.initialValues;
+          var id = "";
+          if('id' in item) {
+            id = item.id;
           }
-          return <%(name)sInspector editorActive="true" initialValues={initialValues}""" % objType.attrib
+          return <%(name)sInspector editorActive="true" id={id}""" % objType.attrib
         for propertyType in objType.findall('propertyType'):
             propTypeName = ""
             if 'type' in propertyType.attrib: 
@@ -491,7 +549,7 @@ var %(name)sBrowser = React.createClass({
       this.setState({data: data});
   },
   getInitialState: function() {
-    return {selected: [], data: []""" % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
+    return { selected: [], data: []""" % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
 
         for propertyType in objType.findall('propertyType'):
             propTypeName = ""
@@ -509,9 +567,23 @@ var %(name)sBrowser = React.createClass({
   getSelected: function() {
     return this.state.data[this.state.selected[0]];
   },
+  loadFromStore: function() {
+      var state = store%(name)s.getState();
+      this.setState({ data: state.items });
+  },
   componentDidMount: function() {
-    this.loadFromServer();
-    setInterval(this.loadFromServer, this.props.pollInterval);
+    // this.loadFromServer();
+    // setInterval(this.loadFromServer, this.props.pollInterval);
+    this.loadFromStore();
+    this.unsubscribe = store%(name)s.subscribe(() => {
+      //alert('Async update reached %(name)sBrowser with '+state.items.length+' items');
+      if(this.isMounted()) {
+        this.loadFromStore();
+      }
+    });    
+  },
+  componentWillUnmount: function() {
+    this.unsubscribe();
   },
   handleSelect: function (selected) {
     this.setState({selected: selected});
@@ -575,10 +647,22 @@ var %(name)sInspector = React.createClass({
           propCount += 1
         print """
     };
-    if('initialValues' in this.props) {
-      initialValues = this.props.initialValues;
+
+    if('id' in this.props) {
+        var state = store%(name)s.getState();
+        var myItem = state.items.find(function(item) { return item.id == this.props.id; }.bind(this));
+        if(myItem) {
+          alert('getInitialState reached %(name)sInspector with '+state.items.length+' items of which id '+this.props.id+' is found');
+          initialValues = myItem;
+        } else {
+          alert('getInitialState ignored by %(name)sInspector with '+state.items.length+' items of which id '+this.props.id+' cannot be found');
+        }
     }
-    return { actions: [
+
+    //if('initialValues' in this.props) {
+      //initialValues = this.props.initialValues;
+    //}
+    return { id: this.props.id, actions: [
     { label: "Cancel", onClick: this.handleCancel },
     { label: this.props.editorMode+" %(label)s", onClick: this.handleSubmit }
                       ], 
@@ -664,7 +748,7 @@ var %(name)sEditor = React.createClass({
       alert("No %(label)s is selected");
     } else {
       var initialValues = this.props.getSelected();
-      var inspector = { editorType: '%(name)s', editorMode: "EDIT", editorField: "", initialValues: initialValues,onPushInspector: this.pushInspector, onPopInspector: this.popInspector};
+      var inspector = { editorType: '%(name)s', editorMode: "EDIT", editorField: "", id: initialValues.id,onPushInspector: this.pushInspector, onPopInspector: this.popInspector};
       this.pushInspector(inspector);
     }
   },
@@ -672,7 +756,7 @@ var %(name)sEditor = React.createClass({
     if(!this.props.hasSelected()) {
       alert("No %(label)s is selected");
     } else {
-      var inspector = { editorType: '%(name)s', editorMode: "DELETE", editorField: "", initialValues: this.props.getSelected(),onPushInspector: this.pushInspector, onPopInspector: this.popInspector};
+      var inspector = { editorType: '%(name)s', editorMode: "DELETE", editorField: "", id: initialValues.id,onPushInspector: this.pushInspector, onPopInspector: this.popInspector};
       this.pushInspector(inspector);
     }
   },
@@ -727,7 +811,7 @@ var %(name)sEditor = React.createClass({
 
     print """
 ReactDOM.render(
-  <%(name)sApp/>,
+  <%(name)sApp pollInterval={5000}/>,
   document.getElementById('content')
 );
     """ % root.attrib
