@@ -652,10 +652,10 @@ var %(name)sInspector = React.createClass({
         var state = store%(name)s.getState();
         var myItem = state.items.find(function(item) { return item.id == this.props.id; }.bind(this));
         if(myItem) {
-          alert('getInitialState reached %(name)sInspector with '+state.items.length+' items of which id '+this.props.id+' is found');
+          //alert('getInitialState reached %(name)sInspector with '+state.items.length+' items of which id '+this.props.id+' is found');
           initialValues = myItem;
         } else {
-          alert('getInitialState ignored by %(name)sInspector with '+state.items.length+' items of which id '+this.props.id+' cannot be found');
+          //alert('getInitialState ignored by %(name)sInspector with '+state.items.length+' items of which id '+this.props.id+' cannot be found');
         }
     }
 
