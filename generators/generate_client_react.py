@@ -117,6 +117,7 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const toolbox = require('react-toolbox');
 const Redux = require('redux');
+const Auth0Lock = require('auth0-lock');
 
 const Input = toolbox.Input;
 const Tabs = toolbox.Tabs;
@@ -125,6 +126,70 @@ const Table = toolbox.Table;
 const Dropdown = toolbox.Dropdown;
 const Button = toolbox.Button;
 const Dialog = toolbox.Dialog;
+
+class AuthService {
+  constructor(clientId, domain) {
+    // Configure Auth0
+    this.lock = new Auth0Lock.default(clientId, domain, {
+      auth: {
+        redirectUrl: 'http://localhost:3000/',
+        responseType: 'token'
+      }
+    })
+    // Add callback for lock `authenticated` event
+    this.lock.on('authenticated', this._doAuthentication.bind(this))
+    // binds login functions to keep this context
+    this.login = this.login.bind(this)
+  }
+
+  _doAuthentication(authResult) {
+    // Saves the user token
+    this.setToken(authResult.idToken)
+    // navigate to the home route
+    browserHistory.replace('/home')
+  }
+
+  login() {
+    // Call the show method to display the widget.
+    this.lock.show()
+  }
+
+  loggedIn() {
+    // Checks if there is a saved token and it's still valid
+    return !!this.getToken()
+  }
+
+  setToken(idToken) {
+    // Saves user token to local storage
+    localStorage.setItem('id_token', idToken)
+  }
+
+  getToken() {
+    // Retrieves the user token from local storage
+    return localStorage.getItem('id_token')
+  }
+
+  logout() {
+    // Clear user token and profile data from local storage
+    localStorage.removeItem('id_token');
+  }
+}
+
+const auth = new AuthService('Iij39J1gGximSmXEyNK7KMrR53oEgfpD', 'pitaman.auth0.com');
+
+class Login extends React.Component {
+  render() {
+    const { auth } = this.props
+    return (
+      <div className={styles.root}>
+        <h2>Login</h2>
+        <ButtonToolbar className={styles.toolbar}>
+          <Button bsStyle="primary" onClick={auth.login.bind(this)}>Login</Button>
+        </ButtonToolbar>
+      </div>
+    )
+  }
+}
 
 """
 
@@ -222,10 +287,15 @@ class %(name)sApp extends React.Component {
     """
     for objType in root.findall('objType'):
       print """
+    var idToken = "";
+    if(auth.loggedIn()) {
+      idToken = auth.getToken();
+    }
     $.ajax({
       url: 'api/%(name)s',
       dataType: 'json',
       cache: false,
+      headers: { 'xxAuth': idToken },
       success: function(data) {
         // alert('Async state update receieved for %(name)s');
         store%(name)s.dispatch(async%(name)s(data));
@@ -237,6 +307,14 @@ class %(name)sApp extends React.Component {
       """ % objType.attrib
 
     print """
+  };
+  doLogin() {
+    auth.login(this);
+    this.setState({loggedIn: true});
+  };
+  doLogout() {
+    auth.logout(this);
+    this.setState({loggedIn: false});
   };
   render() {
     return (
@@ -251,6 +329,14 @@ class %(name)sApp extends React.Component {
             browse.emitTab()
 
     print """
+          <Tab label="Login/Logout">
+            <Button bsStyle="primary" onClick={this.doLogin.bind(this)}>Login</Button>
+            <Button bsStyle="primary" onClick={this.doLogout.bind(this)}>Logout</Button>
+            <h2>Token</h2>
+            <pre>
+            {auth.loggedIn() ? auth.getToken().toString() : "Not Logged In"}
+            </pre>
+          </Tab>
         </Tabs>
         </div>
     );
@@ -503,10 +589,15 @@ var %(name)sBrowser = React.createClass({
                 """ % propertyType.attrib
         print """
   loadFromServer: function() {
+    var idToken = "";
+    if(auth.loggedIn()) {
+      idToken = auth.getToken();
+    }
     $.ajax({
       url: 'api/%(name)s',
       dataType: 'json',
       cache: false,
+      headers: { 'xxAuth': idToken },
       success: function(data) {
         if(this.isMounted()) {
           this.setState({data: data});
@@ -531,6 +622,7 @@ var %(name)sBrowser = React.createClass({
                 print """
       dataType: 'json',
       cache: false,
+      headers: { 'xxAuth': idToken },
       success: function(data) {
         this.%(name)sLoaded(data);
       }.bind(this),
@@ -671,11 +763,16 @@ var %(name)sInspector = React.createClass({
         print """};
   },
   handleSubmit: function() {
+    var idToken = "";
+    if(auth.loggedIn()) {
+      idToken = auth.getToken();
+    }
     $.ajax({
       url: 'api/%(name)s',
       dataType: 'json',
       type: this.props.editorMode,
       data: this.state.editorValues,
+      headers: { 'xxAuth': idToken },
       success: function(data) {
         this.props.onUpdate("%(name)s",data);
       }.bind(this),

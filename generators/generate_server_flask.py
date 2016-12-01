@@ -11,6 +11,7 @@ import os
 import time
 import re
 from flask import Flask, Response, request
+from flask.ext.cors import CORS
 
 f = os.popen('ifconfig eth0')
 tmp=f.read()
@@ -22,6 +23,7 @@ if tmp != None:
     portNumber=80
 app = Flask(__name__, static_url_path='', static_folder='public')
 app.add_url_rule('/', 'root', lambda: app.send_static_file('index.html'))
+CORS(app)
 """
 
 argi = 0
@@ -48,6 +50,10 @@ def %(name)s_handler():
 
     fields = request.form.to_dict()
     save = False
+    if not request.headers.has_key('xxAuth'):
+        print "request headers has no xxAuth\\n"
+    else:
+        print "%%s provides token %%s\\n" %% (request.method,request.headers.get('xxAuth'))
     if request.method == 'ADD':
         print "ADD %(name)s"
         new_item = fields
