@@ -223,6 +223,12 @@ for arg in sys.argv:
     # create Redux actions
     for objType in root.findall('objType'):
       print """
+        function status%(name)s(status) {
+          return {
+            type: 'STATUS',
+            status: status
+          }
+        }
         function async%(name)s(items) {
           return {
             type: 'ASYNC',
@@ -236,6 +242,10 @@ for arg in sys.argv:
       print """
         function reduce%(name)s(state, action) {
           switch (action.type) {
+            case 'STATUS': 
+              var newState = Object.assign({}, state);
+              newState.status = action.status;
+              return newState;
             case 'ASYNC': 
               var newState = Object.assign({}, state);
               newState.items = action.items;
@@ -298,6 +308,7 @@ class %(name)sApp extends React.Component {
     for objType in root.findall('objType'):
       print """
     var idToken = "";
+    store%(name)s.dispatch(status%(name)s('synchronizing'));
     if(auth.loggedIn()) {
       idToken = auth.getToken();
     }
@@ -310,9 +321,11 @@ class %(name)sApp extends React.Component {
       success: function(data) {
         // alert('Async state update receieved for %(name)s');
         store%(name)s.dispatch(async%(name)s(data));
+        store%(name)s.dispatch(status%(name)s('upToDate'));
       }.bind(this),
       error: function(xhr, status, err) {
-        console.error('api/%(name)s', status, err.toString());
+        store%(name)s.dispatch(status%(name)s(err.toString()));
+        //console.error('api/%(name)s', status, err.toString());
       }.bind(this)
     });
       """ % objType.attrib
@@ -674,7 +687,7 @@ var %(name)sBrowser = React.createClass({
   },
   loadFromStore: function() {
       var state = store%(name)s.getState();
-      this.setState({ data: state.items });
+      this.setState({ status: state.status, data: state.items });
   },
   componentDidMount: function() {
     // this.loadFromServer();
@@ -696,6 +709,7 @@ var %(name)sBrowser = React.createClass({
   render: function() {
     return (
       <div className="%(name)sBrowser">
+        <p><i>{this.state.status}</i></p>
         <%(name)sTable type="%(name)s" handleSelect={this.handleSelect} data={this.state.data}""" % dict(name=objType.get('name'))
         for propertyType in objType.findall('propertyType'):
             propTypeName = ""

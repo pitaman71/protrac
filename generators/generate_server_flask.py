@@ -59,6 +59,12 @@ def translate_expr(expr):
             return translate_infix('/',values)
         elif(expr.get('name') == 'mod'):
             return translate_infix('%',values)
+        elif(expr.get('name') == 'and'):
+            return translate_infix('and',values)
+        elif(expr.get('name') == 'or'):
+            return translate_infix('or',values)
+        elif(expr.get('name') == 'xor'):
+            return translate_infix('xor',values)
         else:
             return translate_call(expr.get('name'),values)
     elif(expr.tag == 'ref'):
@@ -265,14 +271,14 @@ def %(name)s_handler():
         new_item['id'] = int(time.time() * 1000)
         items_after = items_before
         items_after.append(new_item)
-        outcome = filter_action('%(name)s',request.method,dict(item=new_item,session=session)) ? 'save' : 'fail'
+        outcome = 'save' if filter_action('%(name)s',request.method,dict(item=new_item,session=session)) else 'fail'
     elif request.method == 'DELETE':
         print "DELETE %(name)s id="+fields['id']
         for item in items_before:
             if item['id'] != int(fields['id']):
                 items_after.append(item)
             else:
-                outcome = filter_action('%(name)s',request.method,dict(item=item,session=session)) ? 'save' : 'fail'
+                outcome = 'save' if filter_action('%(name)s',request.method,dict(item=item,session=session)) else 'fail'
             if outcome == 'fail':
                 break
     elif request.method == 'EDIT':
@@ -284,7 +290,7 @@ def %(name)s_handler():
                 new_item = fields
                 new_item['id'] = int(fields['id'])
                 items_after.append(new_item)
-                outcome = filter_action('%(name)s',request.method,dict(item=new_item,session=session)) ? 'save' : 'fail'
+                outcome = 'save' if filter_action('%(name)s',request.method,dict(item=new_item,session=session)) else 'fail'
             if outcome == 'fail':
                 break
     else:
@@ -304,12 +310,12 @@ def %(name)s_handler():
 
     items_filtered = []
     for item in items_after:
-        if(filter_item('%(name)s',dict(session=session,item=item)):
+        if filter_item('%(name)s',dict(session=session,item=item)):
             item['visible'] = True
-            items_filtered.push(item)
+            items_filtered.append(item)
         else:
             new_item = dict(visible=False,id=item['id'])
-            items_filtered.push(item)
+            items_filtered.append(item)
 
     return Response(
         json.dumps(items_filtered),
