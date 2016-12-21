@@ -7,7 +7,8 @@
     <view name="Application">
         <browse type="Person"/>
         <browse type="Standard"/>
-        <browse type="Subject"/>
+        <browse type="Course"/>
+        <browse type="Enrollment"/>
         <browse type="LearningUnit"/>
         <browse type="UnitReports"/>
     </view>
@@ -16,12 +17,23 @@
         <labelList>Organizations</labelList>
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="description" type="StringComment"/>
+        <action proto="BROWSE"/>
+        <action proto="READ"/>
+        <action proto="EDIT"/>
+        <action proto="ADD"/>
+        <action proto="DELETE"/>
     </objType>
-    <relType name="Enrollment">
-        <propertyType name="teacher" type="Person"/>
+    <objType name="Enrollment">
         <propertyType name="student" type="Person"/>
-    </relType>
-    <relType name="ParentOrGuardianship">
+        <propertyType name="course" type="Course"/>
+        <propertyType name="teacher" type="Person"/>
+        <action proto="BROWSE"/>
+        <action proto="READ"/>
+        <action proto="EDIT"/>
+        <action proto="ADD"/>
+        <action proto="DELETE"/>
+    </objType>
+    <relType name="ParentOf">
         <propertyType name="parent" type="Person"/>
         <propertyType name="student" type="Person"/>
     </relType>
@@ -29,21 +41,41 @@
         <labelItem><name/></labelItem>
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="description" type="StringComment"/>
+        <action proto="BROWSE"/>
+        <action proto="READ"/>
+        <action proto="EDIT"/>
+        <action proto="ADD"/>
+        <action proto="DELETE"/>
     </objType>
     <objType name="MasteryRating">
         <labelItem><name/></labelItem>
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="description" type="StringComment"/>
+        <action proto="BROWSE"/>
+        <action proto="READ"/>
+        <action proto="EDIT"/>
+        <action proto="ADD"/>
+        <action proto="DELETE"/>
     </objType>
     <objType name="CooperationCredit">
         <labelItem><name/></labelItem>
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="description" type="StringComment"/>
+        <action proto="BROWSE"/>
+        <action proto="READ"/>
+        <action proto="EDIT"/>
+        <action proto="ADD"/>
+        <action proto="DELETE"/>
     </objType>
     <objType name="ProgressRating">
         <labelItem><name/></labelItem>
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="description" type="StringComment"/>
+        <action proto="BROWSE"/>
+        <action proto="READ"/>
+        <action proto="EDIT"/>
+        <action proto="ADD"/>
+        <action proto="DELETE"/>
     </objType>
     <object type="EffortCredit"><name>wow!</name></object>
     <object type="EffortCredit"><name>smiley</name></object>
@@ -69,27 +101,53 @@
         <labelList>People</labelList>
         <propertyType name="surName" type="StringLabel"/>
         <propertyType name="givenName" type="StringLabel"/>
+        <action proto="BROWSE"/>
+        <action proto="READ"/>
+        <action proto="EDIT"/>
+        <action proto="ADD"/>
+        <action proto="DELETE"/>
     </objType>
+    <relType name="Identify">
+        <labelItem><email/> = <person/></labelItem>
+        <labelList>Identifies</labelList>
+        <propertyType name="email" type="StringLabel"/>
+        <propertyType name="person" type="Person"/>
+    </relType>
     <objType name="Standard">
         <labelItem><name/></labelItem>
         <labelList>Standards</labelList>
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="description" type="StringComment"/>
+        <action proto="BROWSE"/>
+        <action proto="READ"/>
+        <action proto="EDIT"/>
+        <action proto="ADD"/>
+        <action proto="DELETE"/>
     </objType>
-    <objType name="Subject">
+    <objType name="Course">
         <labelItem><name/></labelItem>
-        <labelList>Subjects</labelList>
+        <labelList>Courses</labelList>
         <propertyType name="name" type="StringLabel"/>
         <propertyType name="description" type="StringComment"/>
+        <action proto="BROWSE"/>
+        <action proto="READ"/>
+        <action proto="EDIT"/>
+        <action proto="ADD"/>
+        <action proto="DELETE"/>
     </objType>
     <objType name="LearningUnit">
         <labelItem><name/></labelItem>
         <labelList>Units</labelList>
         <propertyType name="name" type="StringLabel"/>
-        <propertyType name="subject" type="Subject"/>
+        <propertyType name="course" type="Course"/>
         <propertyType name="standard" type="Standard"/>
         <propertyType name="section" type="StringLabel"/>
         <propertyType name="description" type="StringComment"/>
+        <action proto="BROWSE"/>
+        <action proto="READ"/>
+        <action proto="EDIT"/>
+        <action proto="ADD"/>
+        <action proto="DELETE"/>
     </objType>
     <objType name="UnitReports">
         <labelItem><name/></labelItem>
@@ -102,5 +160,60 @@
         <propertyType name="cooperation" type="CooperationCredit"/>
         <propertyType name="mastery" type="MasteryRating"/>
         <propertyType name="progress" type="ProgressRating"/>
+        <action proto="BROWSE">
+            <authorize><field name="loggedIn"><ref symbol="session"/></field></authorize>
+            <filter symbol="item">
+                <exists symbol="identify" type="Identify">
+                    <op name="and">
+                        <op name="eq">
+                            <field name="email"><ref symbol="session"/></field>
+                            <field name="email"><ref symbol="identify"/></field>
+                        </op>
+                        <op name="or">
+                            <op name="eq">
+                                <field name="person"><ref symbol="identify"/></field>
+                                <field name="item"><ref symbol="teacher"/></field>
+                            </op>
+                            <op name="eq">
+                                <field name="person"><ref symbol="identify"/></field>
+                                <field name="item"><ref symbol="student"/></field>
+                            </op>
+                            <exists symbol="parentOf" type="ParentOf">
+                                <op name="eq">
+                                    <field name="person"><ref symbol="identify"/></field>
+                                    <field name="parent"><ref symbol="parentOf"/></field>
+                                </op>
+                                <op name="eq">
+                                    <field name="child"><ref symbol="parentOf"/></field>
+                                    <field name="student"><ref symbol="item"/></field>
+                                </op>
+                            </exists>
+                        </op>
+                    </op>
+                </exists>
+            </filter>
+            <!-- session.user == target.teacher -->
+            <!-- or(Enrollment(session.user,*,*),Enrollment(*,*,session.user)) -->
+        </action>
+        <action proto="READ">
+            <authorize><field name="loggedIn"><ref symbol="session"/></field></authorize>
+            <!-- session.user == target.teacher -->
+            <!-- or(Enrollment(session.user,*,*),Enrollment(*,*,session.user)) -->
+        </action>
+        <action proto="EDIT">
+            <authorize><field name="loggedIn"><ref symbol="session"/></field></authorize>
+            <!-- session.user == target.teacher -->
+            <!-- or(Enrollment(session.user,*,*),Enrollment(*,*,session.user)) -->
+        </action>
+        <action proto="ADD">
+            <authorize><field name="loggedIn"><ref symbol="session"/></field></authorize>
+            <!-- session.user == target.teacher -->
+            <!-- or(Enrollment(session.user,*,*),Enrollment(*,*,session.user)) -->
+        </action>
+        <action proto="DELETE">
+            <authorize><field name="loggedIn"><ref symbol="session"/></field></authorize>
+            <!-- session.user == target.teacher -->
+            <!-- or(Enrollment(session.user,*,*),Enrollment(*,*,session.user)) -->
+        </action>
     </objType>
 </application>

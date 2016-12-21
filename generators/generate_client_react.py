@@ -130,9 +130,10 @@ const Dialog = toolbox.Dialog;
 class AuthService {
   constructor(clientId, domain) {
     // Configure Auth0
+    var searchParams = window.location.search || ''
     this.lock = new Auth0Lock.default(clientId, domain, {
       auth: {
-        redirectUrl: 'http://localhost:3000/',
+        redirectUrl: 'http://localhost:3000/'+searchParams,
         responseType: 'token'
       }
     })
@@ -146,7 +147,7 @@ class AuthService {
     // Saves the user token
     this.setToken(authResult.idToken)
     // navigate to the home route
-    browserHistory.replace('/home')
+    //browserHistory.replace('/home')
   }
 
   login() {
@@ -176,6 +177,15 @@ class AuthService {
 }
 
 const auth = new AuthService('Iij39J1gGximSmXEyNK7KMrR53oEgfpD', 'pitaman.auth0.com');
+
+$.ajaxSetup({
+  'beforeSend': function(xhr) {
+    if (auth.loggedIn()) {
+      xhr.setRequestHeader('Authorization',
+        'Bearer ' + auth.getToken());
+    }
+  }
+});
 
 class Login extends React.Component {
   render() {
@@ -293,6 +303,7 @@ class %(name)sApp extends React.Component {
     }
     $.ajax({
       url: 'api/%(name)s',
+      type: 'BROWSE',
       dataType: 'json',
       cache: false,
       headers: { 'xxAuth': idToken },
@@ -595,6 +606,7 @@ var %(name)sBrowser = React.createClass({
     }
     $.ajax({
       url: 'api/%(name)s',
+      type: 'BROWSE',
       dataType: 'json',
       cache: false,
       headers: { 'xxAuth': idToken },
@@ -620,6 +632,7 @@ var %(name)sBrowser = React.createClass({
       url: 'api/%(name)s',
                 """ % userDef.attrib
                 print """
+      type: 'BROWSE',
       dataType: 'json',
       cache: false,
       headers: { 'xxAuth': idToken },
