@@ -62,10 +62,10 @@ class PropertyWrapper(NodeWrapper):
         <Dropdown
           auto
           onChange={this.handle%(name)sChange}
-          source={this.props.%(name)sValues}
+          source={%(name)sValues}
           value={this.state.editorValues.%(name)s}
           label="%(label)s"
-        />    """ % dict(name=self.defNode.get('name'),label=NodeWrapper(root,self.defNode).getLabelList())
+        />    """ % dict(name=self.defNode.get('name'),label=NodeWrapper(root,self.defNode).getLabelList(),type=self.typeNode.get('name'))
       elif(self.defNode.get('type') == 'StringLabel'):
         print """<Input type="text" multiline={false} onChange={this.handle%(name)sChange} label="%(label)s" value={this.state.editorValues.%(name)s}/>""" % dict(name=self.defNode.get('name'),label=self.getLabelList())
       elif(self.defNode.get('type') == 'StringComment'):
@@ -235,6 +235,12 @@ for arg in sys.argv:
             items: items
           }
         }
+        function logout%(name)s(items) {
+          return {
+            type: 'LOGOUT',
+            items: items
+          }
+        }
       """ % objType.attrib
 
     # create Redux reducers
@@ -250,6 +256,8 @@ for arg in sys.argv:
               var newState = Object.assign({}, state);
               newState.items = action.items;
               return newState;
+            case 'LOGOUT': 
+              return { state: 'loggedOut'};
             default:
               return state;
           }
@@ -308,26 +316,28 @@ class %(name)sApp extends React.Component {
     for objType in root.findall('objType'):
       print """
     var idToken = "";
-    store%(name)s.dispatch(status%(name)s('synchronizing'));
-    if(auth.loggedIn()) {
+    if(!auth.loggedIn()) {
+      store%(name)s.dispatch(status%(name)s('loggedOut'));
+    } else {
+      store%(name)s.dispatch(status%(name)s('synchronizing'));
       idToken = auth.getToken();
+      $.ajax({
+        url: 'api/%(name)s',
+        type: 'BROWSE',
+        dataType: 'json',
+        cache: false,
+        headers: { 'xxAuth': idToken },
+        success: function(data) {
+          // alert('Async state update receieved for %(name)s');
+          store%(name)s.dispatch(async%(name)s(data));
+          store%(name)s.dispatch(status%(name)s('upToDate'));
+        }.bind(this),
+        error: function(xhr, status, err) {
+          store%(name)s.dispatch(status%(name)s(err.toString()));
+          //console.error('api/%(name)s', status, err.toString());
+        }.bind(this)
+      });
     }
-    $.ajax({
-      url: 'api/%(name)s',
-      type: 'BROWSE',
-      dataType: 'json',
-      cache: false,
-      headers: { 'xxAuth': idToken },
-      success: function(data) {
-        // alert('Async state update receieved for %(name)s');
-        store%(name)s.dispatch(async%(name)s(data));
-        store%(name)s.dispatch(status%(name)s('upToDate'));
-      }.bind(this),
-      error: function(xhr, status, err) {
-        store%(name)s.dispatch(status%(name)s(err.toString()));
-        //console.error('api/%(name)s', status, err.toString());
-      }.bind(this)
-    });
       """ % objType.attrib
 
     print """
@@ -338,6 +348,14 @@ class %(name)sApp extends React.Component {
   };
   doLogout() {
     auth.logout(this);
+    """ % dict(name=root.get('name'),title=NodeWrapper(root,root).getTitle())
+
+    for objType in root.findall('objType'):
+      print """
+    store%(name)s.dispatch(logout%(name)s());
+            """ % objType.attrib
+
+    print """
     this.setState({loggedIn: false});
   };
   render() {
@@ -384,14 +402,6 @@ class %(name)sApp extends React.Component {
             id = item.id;
           }
           return <%(name)sInspector editorActive="true" id={id}""" % objType.attrib
-        for propertyType in objType.findall('propertyType'):
-            propTypeName = ""
-            if 'type' in propertyType.attrib: 
-                propTypeName = propertyType.get('type')
-            userDefs = root.findall('objType[@name=\'%s\']' % propTypeName)
-            if len(userDefs) > 0:
-                userDef = userDefs[len(userDefs)-1]
-                print """ %(name)sValues={this.props.%(name)sValues}""" % propertyType.attrib
 
         print """ editorMode={item.editorMode} onPushInspector={this.pushInspector} onPopInspector={this.popInspector} onUpdate={this.handleUpdate} onCancel={this.handleCancel}/>""" % objType.attrib
         typeIndex += 1
@@ -400,6 +410,24 @@ class %(name)sApp extends React.Component {
     print """
       };
     """
+
+    for objType in root.findall('objType'):
+      print """
+      const %(name)sSelectorSource = function() {
+        var rows = store%(name)s.getState().items;
+        var items = [];
+        for(index=0;index<rows.length;index++) {
+          var item = { value: rows[index].id };
+          item.label = '%(label)s'; """ % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelItem())
+      for subProperty in objType.findall('propertyType'):
+        print """    item.label = item.label.replace(/<%(name)s\s*\/>/g,rows[index].%(name)s);\n""" % subProperty.attrib
+      print """
+          items.push(item);
+        }
+        items.push({ value: "+", label: 'NEW %(name)s'});
+        return items;
+      };
+                """ % objType.attrib
 
     # objType representative class
     for objType in root.findall('objType'):
@@ -415,9 +443,13 @@ var %(name)s = React.createClass({
                 userDef = userDefs[len(userDefs)-1]
                 print """
   getLabel_%(name)s: function() {
-    var selectedValue = this.props.%(name)sValues.find(function(item) { return item.value == this.state.%(name)s; }.bind(this));
-    if(selectedValue) {
-      return selectedValue.label;
+    var selectedValue = store%(type)s.getState().items.find(function(item) { return item.id == this.state.%(name)s; }.bind(this));
+    if(selectedValue) {          
+            var label = '%(label)s'; """ % dict(name=propertyType.get('name'),type=propertyType.get('type'),label=NodeWrapper(root,userDef).getLabelItem())
+                for subProperty in userDef.findall('propertyType'):
+                  print """    label = label.replace(/<%(name)s\s*\/>/g,selectedValue.%(name)s);\n""" % subProperty.attrib
+                print """
+      return label;
     } else {
       return '';
     }
@@ -529,10 +561,7 @@ var %(name)sList = React.createClass({
             if 'type' in propertyType.attrib:
                 propTypeName = propertyType.get('type')
             userDefs = root.findall('objType[@name=\'%s\']' % propTypeName)
-            if len(userDefs) > 0:
-                print """ %(name)s={row.%(name)s} %(name)sValues={this.props.%(name)sValues}""" % propertyType.attrib
-            else:
-                print """ %(name)s={row.%(name)s}""" % propertyType.attrib
+            print """ %(name)s={row.%(name)s}""" % propertyType.attrib
 
         print """/>
       );
@@ -589,28 +618,6 @@ var %(name)sTable = React.createClass({
         print """
 var %(name)sBrowser = React.createClass({
         """ % objType.attrib
-        for propertyType in objType.findall('propertyType'):
-            propTypeName = ""
-            if 'type' in propertyType.attrib:
-                propTypeName = propertyType.get('type')
-            userDefs = root.findall('objType[@name=\'%s\']' % propTypeName)
-            if len(userDefs) > 0:
-                userDef = userDefs[len(userDefs)-1]
-                print """
-  %(name)sLoaded: function(rows) {
-    var items = [];
-    for(index=0;index<rows.length;index++) {
-      var item = { value: rows[index].id };
-      item.label = '%(label)s'; """ % dict(name=propertyType.get('name'),label=NodeWrapper(root,userDef).getLabelItem())
-                for subProperty in userDef.findall('propertyType'):
-                    print """    item.label = item.label.replace(/<%(name)s\s*\/>/g,rows[index].%(name)s);\n""" % subProperty.attrib
-                print """
-      items.push(item);
-    }
-    items.push({ value: "+", label: 'NEW %(type)s'});
-    this.setState({%(name)sValues: items});
-  },
-                """ % propertyType.attrib
         print """
   loadFromServer: function() {
     var idToken = "";
@@ -668,16 +675,7 @@ var %(name)sBrowser = React.createClass({
   },
   getInitialState: function() {
     return { selected: [], data: []""" % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
-
-        for propertyType in objType.findall('propertyType'):
-            propTypeName = ""
-            if 'type' in propertyType.attrib:
-                propTypeName = propertyType.get('type')
-            userDefs = root.findall('objType[@name=\'%s\']' % propTypeName)
-            if len(userDefs) > 0:
-                userDef = userDefs[len(userDefs)-1]
-                print """, %(name)sValues: []""" % propertyType.attrib
-        print """};
+        print """ };
   },
   hasSelected: function() {
     return this.state.selected.length > 0;
@@ -711,24 +709,8 @@ var %(name)sBrowser = React.createClass({
       <div className="%(name)sBrowser">
         <p><i>{this.state.status}</i></p>
         <%(name)sTable type="%(name)s" handleSelect={this.handleSelect} data={this.state.data}""" % dict(name=objType.get('name'))
-        for propertyType in objType.findall('propertyType'):
-            propTypeName = ""
-            if 'type' in propertyType.attrib:
-                propTypeName = propertyType.get('type')
-            userDefs = root.findall('objType[@name=\'%s\']' % propTypeName)
-            if len(userDefs) > 0:
-                userDef = userDefs[len(userDefs)-1]
-                print """ %(name)sValues={this.state.%(name)sValues}""" % propertyType.attrib
         print """/>
           <%(name)sEditor hasSelected={this.hasSelected} getSelected={this.getSelected} onUpdate={this.handleUpdate} """ % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
-        for propertyType in objType.findall('propertyType'):
-            propTypeName = ""
-            if 'type' in propertyType.attrib:
-                propTypeName = propertyType.get('type')
-            userDefs = root.findall('objType[@name=\'%s\']' % propTypeName)
-            if len(userDefs) > 0:
-                userDef = userDefs[len(userDefs)-1]
-                print """ %(name)sValues={this.state.%(name)sValues}""" % propertyType.attrib
         print """/>
       </div>
     );
@@ -773,14 +755,23 @@ var %(name)sInspector = React.createClass({
         if(myItem) {
           //alert('getInitialState reached %(name)sInspector with '+state.items.length+' items of which id '+this.props.id+' is found');
           initialValues = myItem;
+              """ % objType.attrib
+
+        for propertyType in objType.findall('propertyType'):
+            propTypeName = ""
+            if 'type' in propertyType.attrib:
+                propTypeName = propertyType.get('type')
+            userDefs = root.findall('objType[@name=\'%s\']' % propTypeName)
+            if len(userDefs) > 0:
+                userDef = userDefs[len(userDefs)-1]
+                print """initialValues.%(name)s = Number(initialValues.%(name)s);""" % propertyType.attrib
+
+        print """
         } else {
           //alert('getInitialState ignored by %(name)sInspector with '+state.items.length+' items of which id '+this.props.id+' cannot be found');
         }
     }
 
-    //if('initialValues' in this.props) {
-      //initialValues = this.props.initialValues;
-    //}
     return { id: this.props.id, actions: [
     { label: "Cancel", onClick: this.handleCancel },
     { label: this.props.editorMode+" %(label)s", onClick: this.handleSubmit }
@@ -822,6 +813,17 @@ var %(name)sInspector = React.createClass({
     this.props.onPopInspector(inspector);
   },
   render: function() {
+              """
+        for propertyType in objType.findall('propertyType'):
+            propTypeName = ""
+            if 'type' in propertyType.attrib:
+                propTypeName = propertyType.get('type')
+            userDefs = root.findall('objType[@name=\'%s\']' % propTypeName)
+            if len(userDefs) > 0:
+                userDef = userDefs[len(userDefs)-1]
+                print """var %(name)sValues = %(type)sSelectorSource();""" % dict(name=propertyType.get('name'),type=userDef.get('name'))
+
+        print """
     return (
         <Dialog
           actions={this.state.actions}
@@ -850,16 +852,6 @@ var %(name)sEditor = React.createClass({
   getInitialState: function() {
     return { inspectorStack:[],
         """ % objType.attrib
-
-        for propertyType in objType.findall('propertyType'):
-            propTypeName = ""
-            if 'type' in propertyType.attrib:
-                propTypeName = propertyType.get('type')
-            userDefs = root.findall('objType[@name=\'%s\']' % propTypeName)
-            if len(userDefs) > 0:
-                userDef = userDefs[len(userDefs)-1]
-                print """        %(name)sValues: [],""" % propertyType.attrib
-
         print """
       };
   },
@@ -880,22 +872,13 @@ var %(name)sEditor = React.createClass({
     if(!this.props.hasSelected()) {
       alert("No %(label)s is selected");
     } else {
+      var initialValues = this.props.getSelected();
       var inspector = { editorType: '%(name)s', editorMode: "DELETE", editorField: "", id: initialValues.id,onPushInspector: this.pushInspector, onPopInspector: this.popInspector};
       this.pushInspector(inspector);
     }
   },
   pushInspector: function(inspector) {
       """  % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
-
-        for propertyType in objType.findall('propertyType'):
-            propTypeName = ""
-            if 'type' in propertyType.attrib:
-                propTypeName = propertyType.get('type')
-            userDefs = root.findall('objType[@name=\'%s\']' % propTypeName)
-            if len(userDefs) > 0:
-                userDef = userDefs[len(userDefs)-1]
-                print """    inspector['%(name)sValues']=this.props.%(name)sValues;""" % propertyType.attrib
-
         print """
     this.setState({inspectorStack: this.state.inspectorStack.concat([inspector]) });
   },
