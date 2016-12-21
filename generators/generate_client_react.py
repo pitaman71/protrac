@@ -372,8 +372,8 @@ class %(name)sApp extends React.Component {
 
     print """
           <Tab label="Login/Logout">
-            <Button bsStyle="primary" onClick={this.doLogin.bind(this)}>Login</Button>
-            <Button bsStyle="primary" onClick={this.doLogout.bind(this)}>Logout</Button>
+            <Button bsStyle="primary" onClick={this.doLogin.bind(this)} disabled={auth.loggedIn()}>Login</Button>
+            <Button bsStyle="primary" onClick={this.doLogout.bind(this)} disabled={!auth.loggedIn()}>Logout</Button>
             <h2>Token</h2>
             <pre>
             {auth.loggedIn() ? auth.getToken().toString() : "Not Logged In"}
@@ -706,8 +706,8 @@ var %(name)sBrowser = React.createClass({
   },
   render: function() {
     return (
-      <div className="%(name)sBrowser">
-        <p><i>{this.state.status}</i></p>
+      <div class="%(name)sBrowser Browser">
+        <div class="%(name)sBrowserStatus BrowserStatus"><i>{this.state.status}</i></div>
         <%(name)sTable type="%(name)s" handleSelect={this.handleSelect} data={this.state.data}""" % dict(name=objType.get('name'))
         print """/>
           <%(name)sEditor hasSelected={this.hasSelected} getSelected={this.getSelected} onUpdate={this.handleUpdate} """ % dict(name=objType.get('name'),label=NodeWrapper(root,objType).getLabelList())
@@ -906,9 +906,9 @@ var %(name)sEditor = React.createClass({
 
     return (
       <div className="%(name)sEditor">
-        <Button label='Add' onClick={this.beginAdd} />
-        <Button label='Edit' onClick={this.beginEdit} />
-        <Button label='Delete' onClick={this.beginDelete} />
+        <Button label='Add' onClick={this.beginAdd} disabled={!auth.loggedIn()} />
+        <Button label='Edit' onClick={this.beginEdit} disabled={!auth.loggedIn()}/>
+        <Button label='Delete' onClick={this.beginDelete} disabled={!auth.loggedIn()}/>
         {nodes[0]}
       </div>
     );
